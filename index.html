@@ -3,55 +3,45 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Gobocaster 2 - Blender Gobo Lighting</title>
-  <meta name="description" content="A cinematic landing page for Gobocaster 2 by NoiseBee, a Blender add-on for gobo-style projected light textures and art-directable shadows.">
+  <meta name="color-scheme" content="dark">
+  <title>GoboCaster 2</title>
+  <meta name="description" content="GoboCaster 2 brings fast cinematic gobo projection tools to Blender.">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700;800&family=IBM+Plex+Mono:wght@400;500;600&family=Manrope:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800&family=IBM+Plex+Mono:wght@400;500;600&family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
   <style>
-    @property --orbit {
-      syntax: "<angle>";
-      inherits: true;
-      initial-value: 0deg;
-    }
-
     :root {
-      --black: #050606;
-      --coal: #0b0d0d;
-      --panel: #111514;
-      --panel-2: #171b19;
-      --text: #f8efe0;
-      --muted: #b6aca0;
-      --dim: #796f66;
-      --line: rgba(255, 238, 209, 0.14);
-      --amber: #ffb75d;
-      --amber-2: #ffd38b;
-      --cyan: #8de6f6;
-      --red: #ff654a;
-      --shadow: rgba(0, 0, 0, 0.54);
-      --radius: 8px;
-      color-scheme: dark;
+      --black: #030303;
+      --panel: #06080c;
+      --panel-2: #0c1224;
+      --text: #f7fbff;
+      --muted: #b7c4d9;
+      --dim: #6f7f9a;
+      --line: rgba(118, 229, 255, .18);
+      --cyan: #47f0ff;
+      --blue: #205cff;
+      --deep-blue: #061248;
+      --max: 1180px;
+      --radius: 10px;
     }
 
-    * {
-      box-sizing: border-box;
-    }
+    * { box-sizing: border-box; }
 
     html {
+      background: var(--black);
       scroll-behavior: smooth;
     }
 
     body {
       margin: 0;
-      min-width: 320px;
-      color: var(--text);
-      font-family: Manrope, ui-sans-serif, system-ui, sans-serif;
-      background:
-        radial-gradient(circle at 80% 8%, rgba(141, 230, 246, 0.14), transparent 28rem),
-        radial-gradient(circle at 18% 2%, rgba(255, 183, 93, 0.14), transparent 24rem),
-        linear-gradient(115deg, rgba(255,255,255,0.025), transparent 44%),
-        var(--black);
       overflow-x: hidden;
+      color: var(--text);
+      background:
+        radial-gradient(circle at 15% 0%, rgba(71, 240, 255, .14), transparent 28rem),
+        radial-gradient(circle at 86% 18%, rgba(32, 92, 255, .14), transparent 32rem),
+        linear-gradient(180deg, #010207 0%, #05070e 48%, #010103 100%);
+      font-family: Inter, Arial, sans-serif;
+      -webkit-font-smoothing: antialiased;
     }
 
     body::before {
@@ -60,135 +50,107 @@
       inset: 0;
       z-index: -3;
       pointer-events: none;
+      opacity: .18;
       background-image:
-        repeating-linear-gradient(90deg, rgba(255,255,255,0.025) 0 1px, transparent 1px 72px),
-        repeating-linear-gradient(0deg, rgba(255,255,255,0.018) 0 1px, transparent 1px 72px);
-      mask-image: linear-gradient(to bottom, rgba(0,0,0,0.95), transparent 75%);
-    }
-
-    body::after {
-      content: "";
-      position: fixed;
-      inset: 0;
-      z-index: -2;
-      pointer-events: none;
-      opacity: 0.34;
-      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 240 240' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='240' height='240' filter='url(%23n)' opacity='.42'/%3E%3C/svg%3E");
-      mix-blend-mode: overlay;
-    }
-
-    a {
-      color: inherit;
+        linear-gradient(rgba(255,255,255,.035) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255,255,255,.025) 1px, transparent 1px);
+      background-size: 64px 64px;
+      mask-image: linear-gradient(to bottom, #000, transparent 70%);
     }
 
     .page {
       position: relative;
+      overflow: hidden;
       isolation: isolate;
     }
 
-    .page-canvas {
+    #light-canvas {
       position: fixed;
       inset: 0;
-      z-index: -1;
+      z-index: -2;
       width: 100%;
       height: 100%;
       pointer-events: none;
-      opacity: 0.58;
-      mix-blend-mode: screen;
+      opacity: .72;
     }
 
     .section {
-      width: min(1180px, calc(100% - 40px));
+      width: min(calc(100% - 36px), var(--max));
       margin: 0 auto;
     }
 
     .topbar {
       position: sticky;
       top: 0;
-      z-index: 20;
-      border-bottom: 1px solid rgba(255, 238, 209, 0.09);
-      background: rgba(5, 6, 6, 0.72);
+      z-index: 10;
+      border-bottom: 1px solid var(--line);
+      background: rgba(3, 3, 3, .76);
       backdrop-filter: blur(18px);
     }
 
     .nav {
+      min-height: 68px;
       display: flex;
       align-items: center;
       justify-content: space-between;
-      gap: 18px;
-      min-height: 68px;
+      gap: 20px;
     }
 
     .brand {
-      display: flex;
+      display: inline-flex;
       align-items: center;
       gap: 12px;
-      min-width: 0;
+      color: var(--text);
       text-decoration: none;
     }
 
     .mark {
       position: relative;
-      width: 42px;
-      height: 42px;
-      border: 1px solid rgba(255, 211, 139, 0.34);
-      border-radius: var(--radius);
-      background: linear-gradient(145deg, #191310, #080909);
-      box-shadow: inset 0 0 22px rgba(255, 183, 93, 0.13), 0 0 24px rgba(141, 230, 246, 0.08);
-      flex: 0 0 auto;
       overflow: hidden;
+      flex: 0 0 auto;
+      width: 46px;
+      height: 46px;
+      border: 1px solid rgba(71, 240, 255, .5);
+      border-radius: 50%;
+      background: #03070d;
+      box-shadow: 0 0 26px rgba(71, 240, 255, .25), inset 0 0 18px rgba(32, 92, 255, .28);
     }
 
-    .mark::before,
-    .mark::after {
-      content: "";
-      position: absolute;
-      inset: 8px;
-      background: repeating-linear-gradient(105deg, transparent 0 6px, rgba(255, 211, 139, 0.95) 6px 9px);
-      transform: rotate(-10deg);
-      filter: drop-shadow(0 0 8px rgba(255, 183, 93, 0.48));
+    .mark img {
+      display: block;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      object-position: 82% 43%;
+      transform: scale(2.85);
+      filter: saturate(1.22) contrast(1.13) brightness(.95);
     }
 
-    .mark::after {
-      inset: 0;
-      background: radial-gradient(circle at 68% 28%, rgba(141, 230, 246, 0.9), transparent 18%);
-      transform: none;
+    .brand strong {
+      display: block;
+      font: 800 1.2rem/1 "Barlow Condensed", sans-serif;
+      letter-spacing: .01em;
     }
 
-    .brand-text {
-      display: grid;
-      line-height: 1;
-      min-width: 0;
-    }
-
-    .brand-text strong {
-      font-family: "Barlow Condensed", sans-serif;
-      font-size: 1.35rem;
-      letter-spacing: 0;
-      text-transform: uppercase;
-    }
-
-    .brand-text span {
+    .brand span span {
+      display: block;
       margin-top: 4px;
       color: var(--muted);
-      font-family: "IBM Plex Mono", monospace;
-      font-size: 0.68rem;
+      font: 500 .68rem/1 "IBM Plex Mono", monospace;
       text-transform: uppercase;
     }
 
     .nav-links {
       display: flex;
-      align-items: center;
-      gap: 6px;
-      font-family: "IBM Plex Mono", monospace;
-      font-size: 0.72rem;
+      gap: 10px;
+      font: 500 .72rem/1 "IBM Plex Mono", monospace;
       text-transform: uppercase;
     }
 
     .nav-links a {
-      padding: 10px 11px;
       color: var(--muted);
       text-decoration: none;
+      padding: 10px 9px;
       border: 1px solid transparent;
       border-radius: 6px;
     }
@@ -196,9 +158,9 @@
     .nav-links a:hover,
     .nav-links a:focus-visible {
       color: var(--text);
-      border-color: rgba(255, 238, 209, 0.16);
+      border-color: var(--line);
       outline: none;
-      background: rgba(255, 255, 255, 0.04);
+      background: rgba(255,255,255,.04);
     }
 
     .hero {
@@ -206,60 +168,46 @@
       min-height: 760px;
       display: grid;
       align-items: center;
-      padding: 64px 0 72px;
-      overflow: hidden;
-      isolation: isolate;
+      padding: 74px 0 88px;
     }
 
-    .hero-canvas {
-      position: absolute;
-      inset: 0;
-      z-index: 0;
-      width: 100%;
-      height: 100%;
-      opacity: 0.68;
-    }
-
-    .hero::after {
-      content: "";
-      position: absolute;
-      inset: 0;
-      z-index: 1;
-      background:
-        linear-gradient(90deg, rgba(6, 7, 7, 0.7), rgba(6, 7, 7, 0.38) 48%, rgba(6, 7, 7, 0.58)),
-        linear-gradient(to bottom, rgba(6, 7, 7, 0.18), transparent 42%, rgba(6, 7, 7, 0.82));
-      pointer-events: none;
-    }
-
-    .hero-layout {
-      position: relative;
-      z-index: 2;
+    .hero-grid {
       display: grid;
-      grid-template-columns: minmax(0, 0.95fr) minmax(360px, 0.68fr);
-      gap: clamp(28px, 5vw, 76px);
+      grid-template-columns: minmax(0, 1fr) minmax(340px, .72fr);
+      gap: clamp(34px, 6vw, 78px);
       align-items: center;
+    }
+
+    .hero-grid > * {
+      min-width: 0;
+    }
+
+    .eyebrow,
+    .mono,
+    .chip,
+    .feature-list li,
+    .compat-list li {
+      font-family: "IBM Plex Mono", monospace;
+      text-transform: uppercase;
+      letter-spacing: .01em;
     }
 
     .eyebrow {
       display: inline-flex;
       align-items: center;
-      gap: 10px;
-      width: fit-content;
+      gap: 12px;
+      color: var(--cyan);
+      font-size: .76rem;
+      font-weight: 700;
       margin: 0 0 20px;
-      color: var(--amber-2);
-      font-family: "IBM Plex Mono", monospace;
-      font-size: 0.76rem;
-      font-weight: 600;
-      letter-spacing: 0;
-      text-transform: uppercase;
     }
 
     .eyebrow::before {
       content: "";
-      width: 36px;
+      width: 38px;
       height: 1px;
-      background: linear-gradient(90deg, var(--amber), transparent);
-      box-shadow: 0 0 16px rgba(255, 183, 93, 0.62);
+      background: linear-gradient(90deg, var(--cyan), transparent);
+      box-shadow: 0 0 16px rgba(71, 240, 255, .65);
     }
 
     h1,
@@ -267,1085 +215,482 @@
     h3 {
       margin: 0;
       font-family: "Barlow Condensed", sans-serif;
-      letter-spacing: 0;
       text-transform: uppercase;
+      letter-spacing: .01em;
     }
 
     h1 {
-      max-width: 850px;
-      font-size: clamp(5.7rem, 15vw, 13.2rem);
-      line-height: 0.76;
-      font-weight: 800;
-      text-wrap: balance;
-      text-shadow: 0 16px 46px rgba(0, 0, 0, 0.65);
-    }
-
-    .hero-line {
-      position: relative;
       display: flex;
+      align-items: baseline;
       flex-wrap: nowrap;
-      width: fit-content;
-      gap: 0.005em;
-      perspective: 900px;
+      gap: clamp(.16em, 1vw, .24em);
+      font-family: Inter, Arial, sans-serif;
+      font-size: clamp(3.8rem, 5.8vw, 5.8rem);
+      line-height: .88;
+      font-weight: 800;
+      text-transform: none;
+      letter-spacing: 0;
+      text-shadow: 0 0 38px rgba(71, 240, 255, .18);
     }
 
-    .hero-line:last-child {
-      color: transparent;
-      -webkit-text-stroke: 2px rgba(255, 238, 209, 0.96);
-      text-shadow: 0 0 30px rgba(255, 183, 93, 0.48), 0 0 18px rgba(141, 230, 246, 0.22);
-    }
-
-    .logo-letter {
-      --delay: 0ms;
+    .title-line {
       display: inline-block;
-      transform-origin: 50% 80%;
-      animation: letterIgnite 1200ms cubic-bezier(.2,.8,.2,1) both, letterFloat 5200ms ease-in-out infinite;
-      animation-delay: var(--delay), calc(900ms + var(--delay));
-      filter: drop-shadow(0 0 0 rgba(255, 211, 139, 0));
-      will-change: transform, filter;
+      width: auto;
     }
 
-    .hero-line:last-child .logo-letter {
-      color: transparent;
-      -webkit-text-stroke: 2px rgba(255, 238, 209, 0.96);
-      text-shadow: 0 0 30px rgba(255, 183, 93, 0.48), 0 0 18px rgba(141, 230, 246, 0.22);
+    .title-main {
+      color: var(--text);
     }
 
-    .logo-letter::after {
-      content: attr(data-letter);
-      position: absolute;
-      inset: 0;
-      color: rgba(141, 230, 246, 0.18);
-      transform: translate(0.025em, -0.015em);
-      mix-blend-mode: screen;
-      pointer-events: none;
-    }
-
-    .hero-copy-wrap {
-      position: relative;
-      text-shadow: 0 12px 34px rgba(0, 0, 0, 0.92);
-    }
-
-    .mask-companions {
-      position: absolute;
-      inset: 0;
-      z-index: 3;
-      pointer-events: none;
-      overflow: visible;
-    }
-
-    .mask-chip {
-      position: absolute;
-      left: 0;
-      top: 0;
-      width: 34px;
-      height: 34px;
-      opacity: 0;
-      border: 1px solid rgba(255, 238, 209, 0.26);
-      background:
-        radial-gradient(circle at 62% 28%, rgba(141, 230, 246, 0.82), transparent 18%),
-        repeating-linear-gradient(110deg, rgba(255, 211, 139, 0.86) 0 4px, transparent 4px 10px),
-        rgba(6, 7, 7, 0.66);
-      clip-path: polygon(50% 0, 68% 28%, 100% 34%, 72% 55%, 80% 90%, 50% 70%, 20% 90%, 28% 55%, 0 34%, 32% 28%);
-      transform: translate3d(-80px, -80px, 0) rotate(0deg);
-      filter: drop-shadow(0 0 16px rgba(255, 183, 93, 0.42));
-      transition: opacity 180ms ease;
-    }
-
-    .hero-copy-wrap:hover .mask-chip {
-      opacity: 0.92;
+    .title-number {
+      color: var(--cyan);
+      text-shadow: 0 0 22px rgba(71, 240, 255, .78), 0 0 36px rgba(32, 92, 255, .52);
     }
 
     .headline {
-      max-width: 690px;
-      margin: 24px 0 0;
-      font-size: clamp(2rem, 5vw, 4.35rem);
-      line-height: 0.95;
-      font-weight: 700;
-      color: #fff6e9;
+      max-width: 780px;
+      margin: 30px 0 0;
+      color: var(--text);
+      font: 800 clamp(2.15rem, 5.2vw, 4.45rem)/.94 "Barlow Condensed", sans-serif;
       text-transform: uppercase;
     }
 
     .lede {
-      max-width: 620px;
-      margin: 22px 0 0;
-      color: #d0c6ba;
-      font-size: clamp(1rem, 1.5vw, 1.17rem);
-      line-height: 1.75;
+      max-width: 730px;
+      margin: 28px 0 0;
+      color: #d9e5f4;
+      font-size: clamp(1.02rem, 1.55vw, 1.25rem);
+      line-height: 1.72;
     }
 
     .chips {
       display: flex;
       flex-wrap: wrap;
       gap: 9px;
-      margin: 30px 0 0;
       padding: 0;
+      margin: 34px 0 0;
       list-style: none;
     }
 
     .chip {
-      position: relative;
-      --tx: 0px;
-      --ty: 0px;
-      --near: 0;
-      padding: 9px 12px;
-      border: 1px solid rgba(255, 238, 209, 0.18);
-      border-radius: 6px;
-      color: #ffe7c1;
-      font-family: "IBM Plex Mono", monospace;
-      font-size: 0.72rem;
-      text-transform: uppercase;
-      background: rgba(10, 12, 12, 0.62);
-      box-shadow: inset 0 0 18px rgba(255, 183, 93, 0.04), 0 0 calc(var(--near) * 18px) rgba(141, 230, 246, 0.18);
-      transform: translate3d(var(--tx), var(--ty), 0);
-      transition: transform 120ms ease, border-color 160ms ease, box-shadow 160ms ease;
+      padding: 10px 12px;
+      color: #e8f8ff;
+      border: 1px solid var(--line);
+      border-radius: 7px;
+      background: rgba(5, 10, 22, .7);
+      font-size: .72rem;
+      transition: transform .2s ease, border-color .2s ease, box-shadow .2s ease;
     }
 
-    .projector-card {
+    .chip:hover {
+      transform: translateY(-3px);
+      border-color: rgba(71, 240, 255, .5);
+      box-shadow: 0 0 24px rgba(71, 240, 255, .14);
+    }
+
+    .hero-media {
       position: relative;
-      min-height: 520px;
-      border: 1px solid rgba(255, 238, 209, 0.16);
-      border-radius: var(--radius);
-      background:
-        linear-gradient(180deg, rgba(255, 255, 255, 0.065), transparent 34%),
-        radial-gradient(circle at 18% 16%, rgba(255, 183, 93, 0.16), transparent 22rem),
-        rgba(9, 11, 11, 0.72);
-      box-shadow: 0 30px 90px var(--shadow), inset 0 1px 0 rgba(255,255,255,0.08);
       overflow: hidden;
+      width: 100%;
+      max-width: 100%;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: rgba(3, 7, 16, .82);
+      box-shadow: 0 34px 100px rgba(0,0,0,.5);
     }
 
-    .projector-card::before {
+    .hero-media::before {
       content: "";
       position: absolute;
       inset: 0;
-      background:
-        conic-gradient(from 90deg at 22% 48%, rgba(255, 207, 137, 0.34), rgba(255, 207, 137, 0.06), transparent 25%, transparent 72%, rgba(141, 230, 246, 0.12)),
-        repeating-linear-gradient(100deg, transparent 0 16px, rgba(255, 238, 209, 0.06) 16px 20px);
-      clip-path: polygon(20% 44%, 100% 10%, 100% 88%, 20% 56%);
-      filter: blur(0.2px);
-      opacity: 0.75;
-      animation: breathe 7s ease-in-out infinite;
-    }
-
-    .projector-card::after {
-      content: "";
-      position: absolute;
-      inset: 0;
-      background: radial-gradient(circle at 72% 48%, transparent 0 13%, rgba(0,0,0,0.38) 14% 100%);
-      mix-blend-mode: multiply;
+      z-index: 1;
       pointer-events: none;
-    }
-
-    .projector-body {
-      position: absolute;
-      left: 30px;
-      top: 50%;
-      z-index: 2;
-      width: 142px;
-      height: 90px;
-      transform: translateY(-50%);
-      border: 1px solid rgba(255, 238, 209, 0.2);
-      border-radius: var(--radius);
       background:
-        linear-gradient(90deg, #171716, #0b0c0c),
-        repeating-linear-gradient(0deg, rgba(255,255,255,0.08) 0 1px, transparent 1px 7px);
-      box-shadow: 0 18px 50px rgba(0,0,0,0.66), inset 0 0 24px rgba(255,183,93,0.09);
+        conic-gradient(from 90deg at 18% 50%, rgba(71, 240, 255, .3), rgba(32, 92, 255, .1), transparent 23%, transparent 72%, rgba(71, 240, 255, .14)),
+        repeating-linear-gradient(102deg, transparent 0 18px, rgba(247, 251, 255, .07) 18px 22px);
+      clip-path: polygon(16% 42%, 100% 10%, 100% 88%, 16% 58%);
+      animation: beamPulse 7s ease-in-out infinite;
     }
 
-    .projector-body::before {
-      content: "";
-      position: absolute;
-      right: -22px;
-      top: 18px;
-      width: 42px;
-      height: 54px;
-      border-radius: 0 8px 8px 0;
-      border: 1px solid rgba(255, 238, 209, 0.18);
-      background: radial-gradient(circle, var(--amber-2), #28160a 52%, #080909 54%);
-      box-shadow: 0 0 24px rgba(255, 183, 93, 0.48);
-    }
-
-    .projector-body::after {
-      content: "MASK_02";
-      position: absolute;
-      left: 12px;
-      top: 12px;
-      color: var(--cyan);
-      font-family: "IBM Plex Mono", monospace;
-      font-size: 0.64rem;
-      letter-spacing: 0;
-    }
-
-    .pattern-stack {
-      position: absolute;
-      right: 26px;
-      top: 28px;
-      z-index: 2;
-      display: grid;
-      gap: 10px;
-      width: 160px;
-    }
-
-    .mini-pattern {
-      height: 68px;
-      border: 1px solid rgba(255, 238, 209, 0.16);
-      border-radius: 6px;
-      background-color: rgba(8, 9, 9, 0.82);
-      box-shadow: inset 0 0 24px rgba(255, 183, 93, 0.06);
-      overflow: hidden;
-    }
-
-    .mini-pattern:nth-child(1) {
-      background-image: repeating-linear-gradient(90deg, rgba(255, 213, 145, 0.95) 0 8px, transparent 8px 18px);
-      background-size: 46px 100%;
-      animation: slideMask 8s linear infinite;
-    }
-
-    .mini-pattern:nth-child(2) {
-      background-image:
-        radial-gradient(circle at 20% 30%, rgba(141, 230, 246, 0.84) 0 8px, transparent 9px),
-        radial-gradient(circle at 64% 50%, rgba(255, 211, 139, 0.9) 0 12px, transparent 13px),
-        radial-gradient(circle at 36% 76%, rgba(255, 255, 255, 0.7) 0 7px, transparent 8px);
-      background-size: 58px 58px;
-      animation: driftMask 11s linear infinite;
-    }
-
-    .mini-pattern:nth-child(3) {
-      background-image: linear-gradient(135deg, transparent 0 44%, rgba(255, 101, 74, 0.92) 45% 50%, transparent 51% 100%);
-      background-size: 68px 68px;
-      animation: slideMask 12s linear infinite reverse;
+    .hero-media img {
+      display: block;
+      width: 100%;
+      height: auto;
+      opacity: .84;
+      filter: saturate(1.05) contrast(1.06);
     }
 
     .readout {
       position: absolute;
-      left: 30px;
-      right: 30px;
-      bottom: 28px;
-      z-index: 3;
+      z-index: 2;
+      left: 22px;
+      bottom: 22px;
       display: grid;
       grid-template-columns: repeat(3, 1fr);
       gap: 10px;
+      width: calc(100% - 44px);
     }
 
     .readout span {
-      display: grid;
-      gap: 4px;
-      padding: 11px;
-      border: 1px solid rgba(255, 238, 209, 0.14);
-      border-radius: 6px;
-      background: rgba(3, 4, 4, 0.68);
-      font-family: "IBM Plex Mono", monospace;
+      padding: 12px;
+      border: 1px solid rgba(255, 243, 223, .15);
+      border-radius: 7px;
+      background: rgba(0,0,0,.64);
       color: var(--muted);
-      font-size: 0.62rem;
+      font: 500 .68rem/1.3 "IBM Plex Mono", monospace;
       text-transform: uppercase;
     }
 
     .readout b {
+      display: block;
+      margin-top: 6px;
       color: var(--text);
-      font-size: 0.86rem;
-      font-weight: 600;
+      font-size: .92rem;
     }
 
     .marquee {
-      border-block: 1px solid rgba(255, 238, 209, 0.12);
-      background: linear-gradient(90deg, rgba(255, 183, 93, 0.08), rgba(141, 230, 246, 0.05), rgba(255, 101, 74, 0.08));
       overflow: hidden;
+      border-top: 1px solid var(--line);
+      border-bottom: 1px solid var(--line);
+      background: linear-gradient(90deg, rgba(71, 240, 255, .08), rgba(32, 92, 255, .09));
     }
 
     .marquee-track {
       display: flex;
       width: max-content;
-      padding-left: 18px;
-      animation: marquee 28s linear infinite;
+      animation: marquee 24s linear infinite;
     }
 
     .marquee span {
-      padding: 16px 18px;
-      color: #f9dfb9;
-      font-family: "IBM Plex Mono", monospace;
-      font-size: 0.78rem;
+      padding: 18px 24px;
+      color: #e7f8ff;
+      font: 600 .75rem/1 "IBM Plex Mono", monospace;
       text-transform: uppercase;
       white-space: nowrap;
     }
 
-    .marquee span::before {
+    .marquee span::after {
       content: "/";
-      margin-right: 18px;
-      color: var(--red);
-    }
-
-    .intro-grid {
-      display: grid;
-      grid-template-columns: minmax(0, 0.86fr) minmax(280px, 0.52fr);
-      gap: clamp(28px, 4vw, 64px);
-      align-items: start;
-      padding: 96px 0 44px;
-    }
-
-    .section-label {
-      margin: 0 0 14px;
+      margin-left: 24px;
       color: var(--cyan);
-      font-family: "IBM Plex Mono", monospace;
-      font-size: 0.74rem;
-      font-weight: 600;
+    }
+
+    .block {
+      padding: 92px 0;
+      border-top: 1px solid rgba(255,255,255,.04);
+    }
+
+    .split {
+      display: grid;
+      grid-template-columns: minmax(0, 1.04fr) minmax(300px, .66fr);
+      gap: clamp(28px, 6vw, 76px);
+      align-items: start;
+    }
+
+    .label {
+      margin: 0 0 18px;
+      color: var(--cyan);
+      font: 700 .76rem/1 "IBM Plex Mono", monospace;
       text-transform: uppercase;
     }
 
     h2 {
-      font-size: clamp(2.9rem, 7vw, 6.4rem);
-      line-height: 0.87;
-      font-weight: 800;
-      text-wrap: balance;
+      max-width: 900px;
+      color: var(--text);
+      font-size: clamp(3rem, 7.8vw, 7rem);
+      line-height: .88;
     }
 
-    .support {
-      margin: 22px 0 0;
+    h3 {
+      color: var(--text);
+      font-size: clamp(1.7rem, 3.1vw, 2.6rem);
+      line-height: .95;
+    }
+
+    p {
       color: var(--muted);
-      font-size: 1rem;
-      line-height: 1.75;
+      line-height: 1.72;
     }
 
-    .note-panel {
-      border: 1px solid rgba(255, 238, 209, 0.16);
-      border-radius: var(--radius);
-      padding: 22px;
-      background:
-        linear-gradient(140deg, rgba(255, 183, 93, 0.08), transparent 36%),
-        rgba(13, 15, 14, 0.82);
-      box-shadow: inset 0 1px 0 rgba(255,255,255,0.06);
-    }
-
-    .note-panel .mono {
-      color: var(--amber-2);
-      font-family: "IBM Plex Mono", monospace;
-      font-size: 0.74rem;
-      text-transform: uppercase;
-    }
-
-    .note-panel p {
-      margin: 12px 0 0;
-      color: var(--muted);
-      line-height: 1.65;
-    }
-
-    .demo-frame {
+    .panel,
+    .feature-card,
+    .media-card {
       position: relative;
-      --mx: 50%;
-      --my: 50%;
-      --orbit: 0deg;
-      --demo-mask: repeating-linear-gradient(101deg, transparent 0 38px, rgba(0, 0, 0, 0.82) 38px 59px);
-      --preview-size: 78px 100%;
-      height: clamp(320px, 58vw, 650px);
-      margin: 22px auto 96px;
-      border: 1px solid transparent;
+      overflow: hidden;
+      border: 1px solid var(--line);
       border-radius: var(--radius);
       background:
-        linear-gradient(180deg, #141514, #060707) padding-box,
-        conic-gradient(from var(--orbit) at var(--mx) var(--my), rgba(141, 230, 246, 0.82), rgba(255, 211, 139, 0.96), rgba(255, 101, 74, 0.72), rgba(141, 230, 246, 0.82)) border-box;
+        radial-gradient(circle at var(--mx, 50%) var(--my, 0%), rgba(71, 240, 255, .13), transparent 14rem),
+        rgba(5, 10, 20, .82);
+    }
+
+    .panel {
+      padding: 28px;
+    }
+
+    .feature-list,
+    .compat-list {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 10px;
+      padding: 0;
+      margin: 28px 0 0;
+      list-style: none;
+    }
+
+    .feature-list li,
+    .compat-list li {
+      min-height: 58px;
+      display: flex;
+      align-items: center;
+      padding: 12px 13px;
+      border: 1px solid var(--line);
+      border-radius: 7px;
+      color: #edf8ff;
+      background: rgba(255,255,255,.025);
+      font-size: .74rem;
+      transition: transform .2s ease, border-color .2s ease, box-shadow .2s ease;
+    }
+
+    .feature-list li:hover,
+    .compat-list li:hover {
+      transform: translateY(-3px);
+      border-color: rgba(87, 225, 232, .38);
+      box-shadow: 0 0 22px rgba(87, 225, 232, .12);
+    }
+
+    .video-frame {
+      position: relative;
       overflow: hidden;
-      box-shadow: 0 40px 120px rgba(0,0,0,0.58), 0 0 38px rgba(141, 230, 246, 0.1);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: #050505;
+      box-shadow: 0 32px 100px rgba(0,0,0,.5);
     }
 
-    .demo-frame::before {
-      content: "";
-      position: absolute;
-      inset: -12%;
-      background:
-        radial-gradient(ellipse at var(--mx) 12%, rgba(255, 229, 187, 0.4), transparent 42%),
-        var(--demo-mask);
-      background-size: auto, var(--preview-size);
-      transform: rotate(-2deg);
-      animation: blinds 12s ease-in-out infinite alternate;
-    }
-
-    .demo-frame::after {
+    .video-frame::before {
       content: "";
       position: absolute;
       inset: 0;
-      background:
-        radial-gradient(circle at var(--mx) var(--my), rgba(141, 230, 246, 0.22), transparent 13rem),
-        radial-gradient(circle at 18% 70%, rgba(141, 230, 246, 0.2), transparent 18rem),
-        radial-gradient(circle at 76% 62%, rgba(255, 101, 74, 0.16), transparent 18rem),
-        linear-gradient(to top, rgba(0,0,0,0.88), transparent 52%);
+      z-index: 1;
       pointer-events: none;
-    }
-
-    .demo-orbit {
-      position: absolute;
-      inset: 10px;
-      z-index: 3;
-      border-radius: 6px;
-      pointer-events: none;
-      opacity: 0.82;
-      padding: 1px;
-      background: conic-gradient(from var(--orbit), transparent 0 70%, rgba(255, 211, 139, 0.78), rgba(141, 230, 246, 0.72), transparent 84% 100%);
-      mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+      border: 1px solid transparent;
+      border-radius: inherit;
+      opacity: 0;
+      background: radial-gradient(220px circle at var(--mx, 50%) var(--my, 50%), rgba(71, 240, 255, .58), rgba(32, 92, 255, .24) 36%, transparent 70%) border-box;
+      -webkit-mask: linear-gradient(#fff 0 0) padding-box, linear-gradient(#fff 0 0);
+      -webkit-mask-composite: xor;
       mask-composite: exclude;
-      animation: orbit 5s linear infinite;
+      transition: opacity .25s ease;
     }
 
-    .mask-preview {
-      position: absolute;
-      right: clamp(22px, 5vw, 58px);
-      top: clamp(22px, 5vw, 50px);
-      z-index: 2;
-      width: min(34vw, 320px);
-      aspect-ratio: 1.45;
-      border: 1px solid rgba(255, 238, 209, 0.18);
-      border-radius: 6px;
-      background:
-        radial-gradient(circle at 52% 35%, rgba(255, 230, 188, 0.36), transparent 40%),
-        var(--demo-mask),
-        #070909;
-      background-size: auto, var(--preview-size), auto;
-      box-shadow: inset 0 0 42px rgba(255, 183, 93, 0.1), 0 16px 52px rgba(0,0,0,0.42);
+    .video-frame:hover::before { opacity: 1; }
+
+    .video-ratio {
+      aspect-ratio: 16 / 9;
+      position: relative;
+      display: block;
       overflow: hidden;
+      color: inherit;
+      text-decoration: none;
     }
 
-    .mask-preview::after {
-      content: attr(data-label);
+    .video-ratio img {
+      display: block;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      filter: brightness(.72) saturate(1.1);
+      transition: transform .45s ease, filter .3s ease;
+    }
+
+    .video-ratio:hover img {
+      transform: scale(1.025);
+      filter: brightness(.9) saturate(1.18);
+    }
+
+    .play-badge {
       position: absolute;
-      left: 12px;
-      bottom: 10px;
-      color: #ffe7c1;
-      font-family: "IBM Plex Mono", monospace;
-      font-size: 0.66rem;
+      left: 50%;
+      top: 50%;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-width: min(290px, calc(100% - 44px));
+      min-height: 68px;
+      padding: 18px 28px;
+      border: 1px solid rgba(87, 225, 232, .58);
+      border-radius: 999px;
+      background: rgba(0, 0, 0, .72);
+      box-shadow: 0 0 42px rgba(87, 225, 232, .26);
+      color: #fff;
+      font: 800 .92rem/1 "IBM Plex Mono", monospace;
+      letter-spacing: .08em;
       text-transform: uppercase;
+      transform: translate(-50%, -50%);
+      transition: background .25s ease, border-color .25s ease, box-shadow .25s ease;
     }
 
-    .demo-frame[data-preset="blinds"] {
-      --demo-mask: repeating-linear-gradient(101deg, transparent 0 38px, rgba(0, 0, 0, 0.82) 38px 59px);
-      --preview-size: 78px 100%;
-    }
-
-    .demo-frame[data-preset="foliage"] {
-      --demo-mask:
-        radial-gradient(ellipse at 18% 22%, rgba(0,0,0,0.82) 0 15px, transparent 16px),
-        radial-gradient(ellipse at 72% 58%, rgba(0,0,0,0.76) 0 22px, transparent 23px),
-        radial-gradient(ellipse at 42% 76%, rgba(0,0,0,0.72) 0 18px, transparent 19px);
-      --preview-size: 90px 78px;
-    }
-
-    .demo-frame[data-preset="grid"] {
-      --demo-mask: linear-gradient(rgba(0,0,0,0.8) 2px, transparent 2px), linear-gradient(90deg, rgba(0,0,0,0.78) 2px, transparent 2px);
-      --preview-size: 34px 34px;
-    }
-
-    .demo-frame[data-preset="slashes"] {
-      --demo-mask:
-        linear-gradient(132deg, transparent 0 35%, rgba(0,0,0,0.82) 36% 45%, transparent 46% 100%),
-        linear-gradient(132deg, transparent 0 62%, rgba(0,0,0,0.7) 63% 69%, transparent 70% 100%);
-      --preview-size: 94px 94px;
-    }
-
-    .demo-frame[data-preset="caustic"] {
-      --demo-mask:
-        radial-gradient(ellipse at 22% 38%, rgba(0,0,0,0.74), transparent 26%),
-        radial-gradient(ellipse at 70% 60%, rgba(0,0,0,0.65), transparent 28%),
-        conic-gradient(from 12deg, transparent, rgba(0,0,0,0.78), transparent, rgba(0,0,0,0.52), transparent);
-      --preview-size: 120px 120px;
-    }
-
-    .demo-frame[data-preset="vignette"] {
-      --demo-mask: radial-gradient(ellipse at center, transparent 0 35%, rgba(0,0,0,0.88) 66% 100%);
-      --preview-size: 100% 100%;
-    }
-
-    .demo-frame[data-preset="film"] {
-      --demo-mask: linear-gradient(88deg, transparent 0 8%, rgba(0,0,0,0.8) 9% 12%, transparent 13% 34%, rgba(0,0,0,0.74) 35% 40%, transparent 41% 100%), repeating-linear-gradient(0deg, transparent 0 7px, rgba(0,0,0,0.36) 7px 9px);
-      --preview-size: 120px 100%;
-    }
-
-    .demo-frame[data-preset="custom"] {
-      --demo-mask: radial-gradient(circle at 50% 50%, rgba(0,0,0,0.84) 0 18px, transparent 19px), conic-gradient(from 45deg, transparent 0 8%, rgba(0,0,0,0.78) 9% 15%, transparent 16% 35%, rgba(0,0,0,0.7) 36% 43%, transparent 44% 100%);
-      --preview-size: 140px 140px;
-    }
-
-    .demo-frame.is-blinds .mask-preview { animation: previewSlide 620ms ease; }
-    .demo-frame.is-foliage .mask-preview { animation: previewScatter 640ms ease; }
-    .demo-frame.is-grid .mask-preview { animation: previewRotate 620ms ease; }
-    .demo-frame.is-slashes .mask-preview { animation: previewStreak 520ms ease; }
-    .demo-frame.is-caustic .mask-preview { animation: previewRipple 700ms ease; }
-    .demo-frame.is-vignette .mask-preview { animation: previewPulse 540ms ease; }
-    .demo-frame.is-film .mask-preview { animation: previewJitter 420ms steps(2, end); }
-    .demo-frame.is-custom .mask-preview { animation: previewBloom 650ms ease; }
-
-    .demo-copy {
-      position: absolute;
-      left: clamp(22px, 5vw, 58px);
-      bottom: clamp(22px, 5vw, 52px);
-      z-index: 2;
-      max-width: 560px;
-    }
-
-    .demo-copy .mono {
-      color: var(--amber-2);
-      font-family: "IBM Plex Mono", monospace;
-      font-size: 0.72rem;
-      text-transform: uppercase;
-    }
-
-    .demo-copy h3 {
-      margin-top: 12px;
-      font-size: clamp(2rem, 5vw, 4.8rem);
-      line-height: 0.88;
-    }
-
-    .demo-copy p {
-      margin: 16px 0 0;
-      color: var(--muted);
-      line-height: 1.68;
-    }
-
-    .play-target {
-      position: absolute;
-      right: clamp(22px, 5vw, 58px);
-      bottom: clamp(24px, 5vw, 58px);
-      z-index: 2;
-      display: grid;
-      place-items: center;
-      width: 78px;
-      height: 78px;
-      border: 1px solid rgba(255, 238, 209, 0.28);
-      border-radius: 50%;
-      background: rgba(5, 6, 6, 0.62);
-      box-shadow: 0 0 32px rgba(255, 183, 93, 0.18);
-    }
-
-    .play-target::before {
+    .play-badge::before {
       content: "";
       width: 0;
       height: 0;
-      margin-left: 5px;
-      border-top: 13px solid transparent;
-      border-bottom: 13px solid transparent;
-      border-left: 20px solid var(--amber-2);
-      filter: drop-shadow(0 0 8px rgba(255, 183, 93, 0.5));
+      margin-right: 14px;
+      border-top: 10px solid transparent;
+      border-bottom: 10px solid transparent;
+      border-left: 16px solid var(--cyan);
     }
 
-    .features {
+    .video-ratio:hover .play-badge {
+      border-color: var(--cyan);
+      background: rgba(3, 12, 18, .86);
+      box-shadow: 0 0 58px rgba(87, 225, 232, .36);
+    }
+
+    .feature-grid {
       display: grid;
-      grid-template-columns: repeat(4, 1fr);
+      grid-template-columns: repeat(3, minmax(0, 1fr));
       gap: 14px;
-      padding: 0 0 92px;
+      margin-top: 34px;
     }
 
-    .feature {
-      position: relative;
-      min-height: 286px;
-      padding: 22px;
-      border: 1px solid rgba(255, 238, 209, 0.14);
-      border-radius: var(--radius);
-      background:
-        radial-gradient(circle at var(--mx, 50%) var(--my, 0%), rgba(255, 211, 139, 0.18), transparent 12rem),
-        rgba(12, 15, 14, 0.84);
-      overflow: hidden;
-      transition: transform 220ms ease, border-color 220ms ease, background 220ms ease;
+    .feature-card {
+      min-height: 250px;
+      padding: 24px;
     }
 
-    .feature::before {
-      content: "";
-      position: absolute;
-      inset: 0;
-      background: repeating-linear-gradient(118deg, transparent 0 18px, rgba(255, 238, 209, 0.035) 18px 20px);
-      opacity: 0.5;
-      pointer-events: none;
+    .feature-card .num {
+      color: var(--cyan);
+      font: 700 .72rem/1 "IBM Plex Mono", monospace;
     }
 
-    .feature:hover {
-      transform: translateY(-5px);
-      border-color: rgba(255, 211, 139, 0.34);
+    .feature-card h3 {
+      margin-top: 38px;
     }
 
-    .feature .num {
-      color: var(--red);
-      font-family: "IBM Plex Mono", monospace;
-      font-size: 0.72rem;
-      font-weight: 600;
-    }
-
-    .feature h3 {
-      position: relative;
-      margin-top: 52px;
-      font-size: clamp(1.65rem, 2.7vw, 2.55rem);
-      line-height: 0.92;
-      z-index: 1;
-    }
-
-    .feature p {
-      position: relative;
-      z-index: 1;
-      margin: 16px 0 0;
-      color: var(--muted);
-      font-size: 0.94rem;
-      line-height: 1.62;
-    }
-
-    .feature-tags {
-      position: relative;
-      z-index: 2;
-      display: flex;
-      flex-wrap: wrap;
-      gap: 7px;
-      margin-top: 18px;
-    }
-
-    .feature-tag {
-      --tx: 0px;
-      --ty: 0px;
-      --near: 0;
-      display: inline-flex;
-      padding: 6px 8px;
-      border: 1px solid rgba(255, 238, 209, 0.14);
-      border-radius: 5px;
-      color: #f7d8a9;
-      font-family: "IBM Plex Mono", monospace;
-      font-size: 0.62rem;
-      text-transform: uppercase;
-      background: rgba(3, 4, 4, 0.46);
-      box-shadow: 0 0 calc(var(--near) * 20px) rgba(141, 230, 246, 0.2);
-      transform: translate3d(var(--tx), var(--ty), 0);
-      transition: transform 120ms ease, border-color 160ms ease, box-shadow 160ms ease;
-    }
-
-    .gallery {
-      padding: 92px 0;
-      background:
-        linear-gradient(180deg, transparent, rgba(255, 255, 255, 0.025) 22%, transparent),
-        #070808;
-      border-block: 1px solid rgba(255, 238, 209, 0.1);
-    }
-
-    .section-head {
+    .media-grid {
       display: grid;
-      grid-template-columns: minmax(0, 0.86fr) minmax(280px, 0.48fr);
-      align-items: end;
-      gap: 28px;
-      margin-bottom: 34px;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 16px;
+      margin-top: 34px;
     }
 
-    .patterns {
-      display: grid;
-      grid-template-columns: repeat(4, 1fr);
-      gap: 12px;
-    }
-
-    .pattern-card {
-      position: relative;
-      appearance: none;
+    .media-card img {
       display: block;
       width: 100%;
-      min-height: 270px;
-      padding: 0;
-      border: 1px solid rgba(255, 238, 209, 0.15);
-      border-radius: var(--radius);
-      background: #0e1110;
-      color: inherit;
-      cursor: pointer;
-      overflow: hidden;
-      transition: transform 220ms ease, border-color 220ms ease;
+      height: 100%;
+      object-fit: cover;
+      transition: transform .6s cubic-bezier(.16,1,.3,1), filter .35s ease;
     }
 
-    .pattern-card:hover,
-    .pattern-card:focus-visible,
-    .pattern-card.is-active {
-      transform: translateY(-4px);
-      border-color: rgba(141, 230, 246, 0.45);
-      outline: none;
+    .media-card:hover img {
+      transform: scale(1.035);
+      filter: brightness(1.06) saturate(1.08);
     }
 
-    .pattern-card::before {
-      content: "";
+    .media-card:first-child {
+      grid-row: span 2;
+    }
+
+    .media-card .caption {
       position: absolute;
-      inset: 0;
-      background: var(--mask);
-      background-size: var(--size, 90px 90px);
-      opacity: 0.82;
-      transition: transform 600ms ease, filter 600ms ease;
-    }
-
-    .pattern-card:hover::before {
-      transform: scale(1.08) rotate(2deg);
-      filter: contrast(1.25) brightness(1.12);
-    }
-
-    .pattern-card.is-animating::before {
-      animation-duration: 640ms;
-      animation-timing-function: ease;
-      animation-iteration-count: 1;
-    }
-
-    .pattern-card[data-preset="blinds"].is-animating::before { animation-name: presetBlinds; }
-    .pattern-card[data-preset="foliage"].is-animating::before { animation-name: presetFoliage; }
-    .pattern-card[data-preset="grid"].is-animating::before { animation-name: presetGrid; }
-    .pattern-card[data-preset="slashes"].is-animating::before { animation-name: presetSlashes; }
-    .pattern-card[data-preset="caustic"].is-animating::before { animation-name: presetCaustic; }
-    .pattern-card[data-preset="vignette"].is-animating::before { animation-name: presetVignette; }
-    .pattern-card[data-preset="film"].is-animating::before { animation-name: presetFilm; }
-    .pattern-card[data-preset="custom"].is-animating::before { animation-name: presetCustom; }
-
-    .pattern-card::after {
-      content: "";
-      position: absolute;
-      inset: 0;
-      background:
-        radial-gradient(circle at 52% 26%, rgba(255, 220, 160, 0.38), transparent 42%),
-        linear-gradient(to top, rgba(0,0,0,0.88), transparent 58%);
-      mix-blend-mode: screen;
-      opacity: 0.76;
-    }
-
-    .pattern-card:nth-child(1) { --mask: repeating-linear-gradient(90deg, rgba(255, 221, 164, 0.95) 0 9px, transparent 9px 23px); --size: 58px 100%; }
-    .pattern-card:nth-child(2) { --mask: radial-gradient(circle at 20% 30%, rgba(255, 220, 160, 0.9) 0 14px, transparent 15px), radial-gradient(circle at 72% 66%, rgba(141, 230, 246, 0.7) 0 10px, transparent 11px), radial-gradient(circle at 45% 76%, rgba(255, 220, 160, 0.78) 0 20px, transparent 21px); --size: 82px 82px; }
-    .pattern-card:nth-child(3) { --mask: linear-gradient(rgba(141, 230, 246, 0.75) 1px, transparent 1px), linear-gradient(90deg, rgba(255, 211, 139, 0.78) 1px, transparent 1px); --size: 28px 28px; }
-    .pattern-card:nth-child(4) { --mask: linear-gradient(132deg, transparent 0 36%, rgba(255, 211, 139, 0.92) 37% 48%, transparent 49% 100%), linear-gradient(132deg, transparent 0 62%, rgba(255, 101, 74, 0.7) 63% 68%, transparent 69% 100%); --size: 86px 86px; }
-    .pattern-card:nth-child(5) { --mask: radial-gradient(ellipse at 50% 50%, rgba(141, 230, 246, 0.72), transparent 38%), radial-gradient(circle at 30% 68%, rgba(255, 183, 93, 0.7), transparent 20%), conic-gradient(from 25deg, transparent, rgba(255, 231, 193, 0.55), transparent); --size: 120px 120px; }
-    .pattern-card:nth-child(6) { --mask: radial-gradient(ellipse at center, rgba(255, 231, 193, 0.85), transparent 48%); --size: 100% 100%; }
-    .pattern-card:nth-child(7) { --mask: linear-gradient(88deg, transparent 0 8%, rgba(255, 220, 160, 0.92) 9% 12%, transparent 13% 34%, rgba(255, 101, 74, 0.7) 35% 40%, transparent 41% 100%), repeating-linear-gradient(0deg, transparent 0 7px, rgba(141, 230, 246, 0.32) 7px 9px); --size: 120px 100%; }
-    .pattern-card:nth-child(8) { --mask: radial-gradient(circle at 50% 50%, rgba(255, 231, 193, 0.92) 0 18px, transparent 19px), conic-gradient(from 45deg, transparent 0 8%, rgba(141, 230, 246, 0.8) 9% 15%, transparent 16% 35%, rgba(255, 183, 93, 0.75) 36% 43%, transparent 44% 100%); --size: 140px 140px; }
-
-    .pattern-title {
-      position: absolute;
-      left: 14px;
-      right: 14px;
-      bottom: 14px;
-      z-index: 2;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 12px;
+      left: 16px;
+      bottom: 16px;
+      z-index: 1;
+      padding: 9px 11px;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      background: rgba(0,0,0,.68);
       color: var(--text);
-      font-family: "IBM Plex Mono", monospace;
-      font-size: 0.72rem;
+      font: 600 .68rem/1 "IBM Plex Mono", monospace;
       text-transform: uppercase;
-    }
-
-    .pattern-title span:last-child {
-      color: var(--dim);
-    }
-
-    .workflow {
-      padding: 96px 0;
+      backdrop-filter: blur(8px);
     }
 
     .steps {
       display: grid;
-      grid-template-columns: repeat(4, 1fr);
-      gap: 1px;
-      margin-top: 38px;
-      background: rgba(255, 238, 209, 0.13);
-      border: 1px solid rgba(255, 238, 209, 0.13);
-      border-radius: var(--radius);
-      overflow: hidden;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 14px;
+      margin-top: 34px;
     }
 
     .step {
-      position: relative;
-      min-height: 250px;
       padding: 24px;
-      background:
-        linear-gradient(180deg, rgba(255,255,255,0.04), transparent),
-        #0d100f;
-      overflow: hidden;
+      border-left: 2px solid var(--cyan);
     }
 
-    .step::before {
-      content: "";
-      position: absolute;
-      inset: 0;
-      background:
-        radial-gradient(circle at var(--mx, 50%) var(--my, 0%), rgba(141, 230, 246, 0.14), transparent 10rem),
-        radial-gradient(circle at 20% 20%, rgba(255, 183, 93, 0.16), transparent 4px),
-        radial-gradient(circle at 78% 28%, rgba(255, 211, 139, 0.14), transparent 3px),
-        radial-gradient(circle at 56% 76%, rgba(255, 101, 74, 0.15), transparent 4px);
-      background-size: auto, 120px 120px, 94px 94px, 150px 150px;
-      opacity: 0.72;
-      transition: transform 240ms ease, opacity 240ms ease;
-      pointer-events: none;
+    .video-actions {
+      display: flex;
+      justify-content: flex-end;
+      margin-top: 14px;
     }
 
-    .step:hover::before {
-      opacity: 1;
-      transform: scale(1.08);
-    }
-
-    .step .mono {
-      position: relative;
-      z-index: 1;
-      color: var(--amber);
-      font-family: "IBM Plex Mono", monospace;
-      font-size: 0.72rem;
+    .video-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      min-height: 42px;
+      padding: 11px 14px;
+      border: 1px solid rgba(71, 240, 255, .44);
+      border-radius: 7px;
+      color: var(--text);
+      background: linear-gradient(135deg, rgba(71, 240, 255, .16), rgba(32, 92, 255, .16));
+      font: 700 .72rem/1 "IBM Plex Mono", monospace;
+      text-decoration: none;
       text-transform: uppercase;
+      box-shadow: 0 0 26px rgba(32, 92, 255, .13);
+      transition: transform .2s ease, border-color .2s ease, box-shadow .2s ease;
     }
 
-    .step h3 {
-      position: relative;
-      z-index: 1;
-      margin-top: 72px;
-      font-size: clamp(1.6rem, 2.6vw, 2.7rem);
-      line-height: 0.9;
+    .video-link:hover,
+    .video-link:focus-visible {
+      transform: translateY(-2px);
+      border-color: var(--cyan);
+      box-shadow: 0 0 30px rgba(71, 240, 255, .2);
+      outline: none;
     }
 
-    .step p {
-      position: relative;
-      z-index: 1;
-      margin: 15px 0 0;
-      color: var(--muted);
-      font-size: 0.94rem;
-      line-height: 1.6;
+    .video-link::before {
+      content: "PLAY";
+      color: var(--cyan);
     }
 
-    .buy {
-      padding: 84px 0;
-      border-block: 1px solid rgba(255, 238, 209, 0.12);
-      background:
-        radial-gradient(circle at 10% 50%, rgba(255, 101, 74, 0.12), transparent 24rem),
-        radial-gradient(circle at 90% 20%, rgba(141, 230, 246, 0.1), transparent 26rem),
-        #090a0a;
-    }
-
-    .buy-grid {
-      display: grid;
-      grid-template-columns: minmax(0, 0.78fr) minmax(320px, 0.5fr);
-      gap: clamp(28px, 5vw, 70px);
-      align-items: start;
-    }
-
-    .checklist {
-      display: grid;
-      gap: 12px;
-      margin: 0;
-      padding: 0;
-      list-style: none;
-    }
-
-    .checklist li {
-      position: relative;
-      display: grid;
-      grid-template-columns: 28px 1fr;
-      gap: 12px;
-      align-items: start;
-      color: var(--muted);
-      line-height: 1.55;
-    }
-
-    .checklist li::after {
-      content: "";
-      position: absolute;
-      left: -18px;
-      top: 50%;
-      width: 6px;
-      height: 6px;
-      border-radius: 50%;
-      background: var(--cyan);
-      box-shadow:
-        14px -16px 0 rgba(255, 211, 139, 0.52),
-        24px 15px 0 rgba(255, 101, 74, 0.42),
-        38px -4px 0 rgba(255, 238, 209, 0.36);
-      opacity: 0;
-      transform: translate3d(0, -50%, 0) scale(0.5);
-      transition: opacity 180ms ease, transform 260ms ease;
-    }
-
-    .checklist li:hover::after {
-      opacity: 1;
-      transform: translate3d(-10px, -50%, 0) scale(1);
-    }
-
-    .checklist li::before {
-      content: "";
-      width: 20px;
-      height: 20px;
-      margin-top: 2px;
-      border: 1px solid rgba(255, 211, 139, 0.46);
-      border-radius: 5px;
-      background:
-        linear-gradient(135deg, transparent 0 45%, var(--amber) 46% 56%, transparent 57%),
-        rgba(255, 183, 93, 0.06);
-      box-shadow: 0 0 18px rgba(255, 183, 93, 0.12);
+    .support-link {
+      color: var(--cyan);
+      font-weight: 700;
+      text-decoration-color: rgba(87, 225, 232, .45);
+      text-underline-offset: 3px;
     }
 
     .closing {
-      position: relative;
-      min-height: 420px;
-      display: grid;
-      place-items: center;
+      padding: 96px 0 108px;
       text-align: center;
-      overflow: hidden;
-    }
-
-    .closing::before {
-      content: "";
-      position: absolute;
-      inset: 0;
-      background:
-        radial-gradient(ellipse at 50% 0%, rgba(255, 211, 139, 0.24), transparent 46%),
-        repeating-linear-gradient(104deg, transparent 0 42px, rgba(255, 238, 209, 0.045) 42px 48px);
-      animation: blinds 14s ease-in-out infinite alternate;
-      pointer-events: none;
-    }
-
-    .closing .section {
-      position: relative;
-      z-index: 1;
+      border-top: 1px solid var(--line);
     }
 
     .closing h2 {
-      max-width: 920px;
       margin: 0 auto;
-      font-size: clamp(3.4rem, 10vw, 9.3rem);
+      max-width: 980px;
     }
 
     .closing p {
-      max-width: 620px;
-      margin: 22px auto 0;
-      color: var(--muted);
-      font-size: 1.05rem;
-      line-height: 1.7;
+      max-width: 760px;
+      margin: 24px auto 0;
     }
 
-    .reveal {
-      opacity: 1;
-      transform: translateY(0);
-      animation: reveal 800ms ease forwards;
-    }
-
-    .delay-1 { animation-delay: 120ms; }
-    .delay-2 { animation-delay: 240ms; }
-    .delay-3 { animation-delay: 360ms; }
-    .delay-4 { animation-delay: 480ms; }
-
-    @keyframes reveal {
-      to {
-        opacity: 1;
-        transform: translateY(0);
-      }
-    }
-
-    @keyframes breathe {
-      0%, 100% { opacity: 0.56; filter: blur(0.1px); }
-      50% { opacity: 0.86; filter: blur(1.1px); }
-    }
-
-    @keyframes slideMask {
-      to { background-position: 130px 0; }
-    }
-
-    @keyframes driftMask {
-      to { background-position: 92px 68px; }
+    @keyframes beamPulse {
+      0%, 100% { opacity: .48; filter: blur(.2px); }
+      50% { opacity: .82; filter: blur(1px); }
     }
 
     @keyframes marquee {
-      to { transform: translateX(-50%); }
+      from { transform: translate3d(-50%,0,0); }
+      to { transform: translate3d(0,0,0); }
     }
 
-    @keyframes blinds {
-      to { transform: translateX(22px) rotate(-2deg); }
-    }
-
-    @keyframes letterIgnite {
-      0% { opacity: 0; transform: translate3d(-0.18em, 0.18em, 0) rotateX(55deg) rotateZ(-5deg); filter: blur(6px) drop-shadow(0 0 0 rgba(255, 211, 139, 0)); }
-      58% { opacity: 1; transform: translate3d(0.02em, -0.035em, 0) rotateX(0deg) rotateZ(2deg); filter: blur(0) drop-shadow(0 0 22px rgba(255, 211, 139, 0.42)); }
-      100% { opacity: 1; transform: translate3d(0, 0, 0) rotateX(0deg) rotateZ(0deg); filter: blur(0) drop-shadow(0 0 8px rgba(255, 211, 139, 0.18)); }
-    }
-
-    @keyframes letterFloat {
-      0%, 100% { transform: translateY(0) rotateZ(0deg); }
-      50% { transform: translateY(-0.018em) rotateZ(0.7deg); }
-    }
-
-    @keyframes orbit {
-      to { --orbit: 360deg; }
-    }
-
-    @keyframes previewSlide {
-      0% { background-position: 0 0, -80px 0, 0 0; }
-      100% { background-position: 0 0, 80px 0, 0 0; }
-    }
-
-    @keyframes previewScatter {
-      0% { transform: scale(0.94) rotate(-2deg); filter: blur(1px) contrast(0.8); }
-      60% { transform: scale(1.08) rotate(3deg); filter: blur(0) contrast(1.35); }
-      100% { transform: scale(1) rotate(0); filter: none; }
-    }
-
-    @keyframes previewRotate {
-      0% { transform: rotate(-8deg) scale(0.95); }
-      65% { transform: rotate(7deg) scale(1.06); }
-      100% { transform: rotate(0) scale(1); }
-    }
-
-    @keyframes previewStreak {
-      0% { transform: translateX(-18px) skewX(-8deg); filter: brightness(1.6); }
-      100% { transform: translateX(0) skewX(0); filter: brightness(1); }
-    }
-
-    @keyframes previewRipple {
-      0% { filter: blur(1px); transform: scale(0.96); }
-      50% { filter: contrast(1.45) saturate(1.24); transform: scale(1.04); }
-      100% { filter: none; transform: scale(1); }
-    }
-
-    @keyframes previewPulse {
-      0% { transform: scale(0.92); opacity: 0.74; }
-      55% { transform: scale(1.06); opacity: 1; }
-      100% { transform: scale(1); opacity: 1; }
-    }
-
-    @keyframes previewJitter {
-      0%, 100% { transform: translate(0, 0); filter: none; }
-      20% { transform: translate(-8px, 2px); filter: contrast(1.6); }
-      45% { transform: translate(7px, -3px); filter: hue-rotate(10deg); }
-      70% { transform: translate(-4px, 4px); filter: brightness(1.3); }
-    }
-
-    @keyframes previewBloom {
-      0% { transform: scale(0.76); filter: blur(4px) brightness(1.7); }
-      62% { transform: scale(1.1); filter: blur(0) brightness(1.25); }
-      100% { transform: scale(1); filter: none; }
-    }
-
-    @keyframes presetBlinds {
-      to { background-position: 160px 0; }
-    }
-
-    @keyframes presetFoliage {
-      50% { transform: scale(1.16) rotate(-4deg); background-position: 22px -18px; }
-    }
-
-    @keyframes presetGrid {
-      50% { transform: rotate(12deg) scale(1.12); }
-    }
-
-    @keyframes presetSlashes {
-      50% { transform: translateX(20px) skewX(-8deg) scale(1.08); filter: brightness(1.5); }
-    }
-
-    @keyframes presetCaustic {
-      50% { transform: scale(1.14); filter: blur(1px) contrast(1.45); }
-    }
-
-    @keyframes presetVignette {
-      50% { transform: scale(0.88); opacity: 0.95; }
-    }
-
-    @keyframes presetFilm {
-      20% { transform: translateX(-9px); filter: contrast(1.6); }
-      45% { transform: translateX(7px); filter: brightness(1.35); }
-      70% { transform: translateX(-4px); }
-    }
-
-    @keyframes presetCustom {
-      0% { transform: scale(0.68); filter: blur(6px) brightness(1.7); }
-      70% { transform: scale(1.18); filter: blur(0) brightness(1.22); }
-      100% { transform: scale(1); }
-    }
-
-    @media (max-width: 1020px) {
-      .hero-layout,
-      .intro-grid,
-      .section-head,
-      .buy-grid {
+    @media (max-width: 920px) {
+      .hero-grid,
+      .split {
         grid-template-columns: 1fr;
       }
 
@@ -1353,166 +698,130 @@
         min-height: 0;
       }
 
-      .projector-card {
-        min-height: 430px;
-      }
-
-      .features {
-        grid-template-columns: repeat(2, 1fr);
-      }
-
-      .patterns {
-        grid-template-columns: repeat(3, 1fr);
-      }
-
+      .feature-grid,
       .steps {
-        grid-template-columns: repeat(2, 1fr);
+        grid-template-columns: 1fr;
+      }
+
+      .feature-list,
+      .compat-list,
+      .media-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .media-card:first-child {
+        grid-row: span 1;
       }
     }
 
-    @media (max-width: 680px) {
+    @media (max-width: 620px) {
+      html,
+      body,
+      .page {
+        width: 100%;
+        max-width: 100%;
+        overflow-x: hidden;
+      }
+
       .section {
-        width: min(100% - 28px, 1180px);
+        width: min(calc(100% - 28px), var(--max));
       }
 
-      .nav {
-        min-height: 62px;
-      }
-
-      .brand-text span,
-      .nav-links {
+      .nav-links,
+      .brand span span {
         display: none;
       }
 
       .hero {
-        padding: 44px 0 56px;
+        padding: 50px 0 62px;
+        width: calc(100vw - 28px);
+        max-width: calc(100vw - 28px);
       }
 
-      h1 {
-        font-size: clamp(3.65rem, 18.4vw, 5.05rem);
-        line-height: 0.8;
+      .hero-grid {
+        width: 100%;
         max-width: 100%;
-      }
-
-      .headline {
-        font-size: clamp(1.9rem, 9vw, 2.28rem);
-        line-height: 1;
-        max-width: 100%;
-        text-wrap: auto;
-      }
-
-      .headline span {
         display: block;
       }
 
-      .lede {
-        max-width: 340px;
-        font-size: 0.92rem;
+      .eyebrow {
+        max-width: 100%;
+        align-items: flex-start;
+        font-size: .64rem;
+        line-height: 1.4;
         overflow-wrap: anywhere;
       }
 
-      .chips {
-        gap: 7px;
+      .eyebrow::before {
+        flex: 0 0 34px;
+        margin-top: .6em;
       }
 
-      .chip {
-        max-width: 100%;
-        flex: 1 1 calc(50% - 8px);
-        font-size: 0.66rem;
+      h1 {
+        font-size: clamp(2.55rem, 10.8vw, 2.9rem);
       }
 
-      .projector-card {
-        min-height: 380px;
+      .headline {
+        width: min(100%, 340px);
+        max-width: 340px;
+        font-size: clamp(1.44rem, 7.05vw, 1.92rem);
+        line-height: 1.08;
+        overflow-wrap: anywhere;
+        word-break: normal;
       }
 
-      .projector-body {
-        left: 18px;
-        width: 110px;
-        height: 72px;
-      }
-
-      .projector-body::before {
-        right: -18px;
-        top: 15px;
-        width: 34px;
-        height: 42px;
-      }
-
-      .pattern-stack {
-        right: 16px;
-        top: 18px;
-        width: 116px;
-      }
-
-      .mini-pattern {
-        height: 52px;
+      .lede {
+        font-size: .98rem;
+        width: min(100%, 340px);
+        max-width: 340px;
+        overflow-wrap: anywhere;
       }
 
       .readout {
-        left: 16px;
-        right: 16px;
-        bottom: 16px;
         grid-template-columns: 1fr;
+        position: static;
+        left: auto;
+        right: auto;
+        bottom: auto;
+        width: auto;
+        padding: 12px;
+        background: rgba(1, 4, 10, .82);
+        border-top: 1px solid var(--line);
       }
 
       .readout span {
-        padding: 8px;
+        padding: 10px 12px;
       }
 
-      .intro-grid {
-        padding-top: 68px;
+      .hero-media img {
+        aspect-ratio: 16 / 9;
+        object-fit: cover;
+        object-position: center;
+      }
+
+      .chips {
+        display: grid;
+        grid-template-columns: 1fr;
+        width: min(100%, 340px);
+        max-width: 340px;
+      }
+
+      .chip {
+        font-size: .66rem;
+      }
+
+      .hero-media {
+        width: min(100%, 340px);
+        max-width: 340px;
+        margin-top: 34px;
+      }
+
+      .block {
+        padding: 70px 0;
       }
 
       h2 {
-        font-size: clamp(2.8rem, 16vw, 4.45rem);
-      }
-
-      .demo-frame {
-        height: 480px;
-        margin-bottom: 68px;
-      }
-
-      .mask-preview {
-        right: 92px;
-        top: 24px;
-        width: min(42vw, 154px);
-      }
-
-      .play-target {
-        top: 24px;
-        right: 22px;
-        bottom: auto;
-        width: 58px;
-        height: 58px;
-      }
-
-      .play-target::before {
-        border-top-width: 10px;
-        border-bottom-width: 10px;
-        border-left-width: 16px;
-      }
-
-      .features,
-      .patterns,
-      .steps {
-        grid-template-columns: 1fr;
-      }
-
-      .feature,
-      .step,
-      .pattern-card {
-        min-height: 220px;
-      }
-
-      .feature h3,
-      .step h3 {
-        margin-top: 40px;
-      }
-
-      .gallery,
-      .workflow,
-      .buy {
-        padding: 68px 0;
+        font-size: clamp(3rem, 16vw, 4.55rem);
       }
     }
 
@@ -1525,80 +834,74 @@
         scroll-behavior: auto !important;
         transition-duration: 1ms !important;
       }
+
+      #light-canvas {
+        display: none;
+      }
     }
   </style>
 </head>
 <body>
+  <!-- Superhive iframe snippet:
+  <iframe src="https://rallisovie.github.io/gobocaster-landing/" width="100%" height="5200" style="border:none;display:block;background:#000;" allowfullscreen=""></iframe>
+  -->
   <div class="page">
-    <canvas class="page-canvas" id="pageCanvas" aria-hidden="true"></canvas>
+    <canvas id="light-canvas" aria-hidden="true"></canvas>
+
     <header class="topbar">
       <nav class="nav section" aria-label="Primary">
-        <a class="brand" href="#top" aria-label="Gobocaster 2 home">
-          <span class="mark" aria-hidden="true"></span>
-          <span class="brand-text">
-            <strong>Gobocaster 2</strong>
+        <a class="brand" href="#top" aria-label="GoboCaster 2 home">
+          <span class="mark" aria-hidden="true">
+            <img src="https://assets.superhivemarket.com/cache/6d4728970b1d67fbbedd75215b834ffb.png" alt="">
+          </span>
+          <span>
+            <strong>GoboCaster 2</strong>
             <span>NoiseBee / Blender add-on</span>
           </span>
         </a>
         <div class="nav-links">
-          <a href="#demo">Demo</a>
-          <a href="#patterns">Patterns</a>
-          <a href="#workflow">Workflow</a>
-          <a href="#before-buy">Before buy</a>
+          <a href="#video">Video</a>
+          <a href="#features">Features</a>
+          <a href="#media">Images</a>
+          <a href="#support">Support</a>
         </div>
       </nav>
     </header>
 
     <main id="top">
-      <section class="hero" aria-labelledby="hero-title">
-        <canvas class="hero-canvas" id="goboCanvas" aria-hidden="true"></canvas>
-        <div class="hero-layout section">
-          <div class="hero-copy-wrap">
-            <div class="mask-companions" aria-hidden="true">
-              <span class="mask-chip"></span>
-              <span class="mask-chip"></span>
-              <span class="mask-chip"></span>
-            </div>
-            <p class="eyebrow reveal">Blender gobo lighting / NoiseBee</p>
-            <h1 id="hero-title" class="reveal delay-1" aria-label="Gobocaster 2">
-              <span class="hero-line" aria-hidden="true">
-                <span class="logo-letter" data-letter="G" style="--delay: 0ms">G</span>
-                <span class="logo-letter" data-letter="o" style="--delay: 55ms">o</span>
-                <span class="logo-letter" data-letter="b" style="--delay: 110ms">b</span>
-                <span class="logo-letter" data-letter="o" style="--delay: 165ms">o</span>
-              </span>
-              <span class="hero-line" aria-hidden="true">
-                <span class="logo-letter" data-letter="c" style="--delay: 220ms">c</span>
-                <span class="logo-letter" data-letter="a" style="--delay: 275ms">a</span>
-                <span class="logo-letter" data-letter="s" style="--delay: 330ms">s</span>
-                <span class="logo-letter" data-letter="t" style="--delay: 385ms">t</span>
-                <span class="logo-letter" data-letter="e" style="--delay: 440ms">e</span>
-                <span class="logo-letter" data-letter="r" style="--delay: 495ms">r</span>
-                <span class="logo-letter" data-letter="2" style="--delay: 570ms">&nbsp;2</span>
-              </span>
+      <section class="hero section">
+        <div class="hero-grid">
+          <div>
+            <p class="eyebrow">Fast cinematic gobo projection tools to Blender</p>
+            <h1>
+              <span class="title-line title-main">GoboCaster</span>
+              <span class="title-line title-number">2</span>
             </h1>
-            <p class="headline reveal delay-2"><span>Cast cinematic</span> <span>shadows without</span> <span>rebuilding the</span> <span>light rig.</span></p>
-            <p class="lede reveal delay-3">A Blender addon for shaping lights with gobo-style texture patterns, projected masks, and art-directable shadow looks.</p>
-            <ul class="chips reveal delay-4" aria-label="Product themes">
-              <li class="chip">Gobo projection</li>
-              <li class="chip">Patterned shadows</li>
-              <li class="chip">Lighting presets</li>
-              <li class="chip">Fast lookdev</li>
-              <li class="chip">Blender workflow</li>
+            <p class="headline">Create scenes with volume, depth, atmosphere, and realistic patterned lighting.</p>
+            <p class="lede">
+              GoboCaster 2 brings fast cinematic gobo projection tools to Blender.
+              Create scenes with volume, depth, atmosphere, and realistic patterned lighting using a curated gobo library,
+              custom image and video gobos, Cycles projection support, EEVEE Gobo Mode, tracking lights, presets,
+              and an intuitive sidebar workflow.
+            </p>
+            <ul class="chips" aria-label="Product highlights">
+              <li class="chip">Curated gobo library</li>
+              <li class="chip">Custom image gobos</li>
+              <li class="chip">Custom video gobos</li>
+              <li class="chip">Cycles projection</li>
+              <li class="chip">EEVEE Gobo Mode</li>
+              <li class="chip">Tracking lights</li>
+              <li class="chip">V key pie menu</li>
+              <li class="chip">My Presets</li>
             </ul>
           </div>
 
-          <div class="projector-card reveal delay-3" aria-label="Animated projector and mask visual">
-            <div class="projector-body" aria-hidden="true"></div>
-            <div class="pattern-stack" aria-hidden="true">
-              <span class="mini-pattern"></span>
-              <span class="mini-pattern"></span>
-              <span class="mini-pattern"></span>
-            </div>
-            <div class="readout" aria-label="Projected light parameters">
-              <span>Scale <b>1.42</b></span>
-              <span>Softness <b>38%</b></span>
-              <span>Rotate <b>-12 deg</b></span>
+          <div class="hero-media" aria-label="GoboCaster 2 product image">
+            <img src="https://assets.superhivemarket.com/cache/6d4728970b1d67fbbedd75215b834ffb.png" alt="GoboCaster 2 cinematic gobo projection render">
+            <div class="readout" aria-label="Gobo controls">
+              <span>Scale <b>Rotation</b></span>
+              <span>Offset <b>Invert</b></span>
+              <span>Beam <b>Volume</b></span>
             </div>
           </div>
         </div>
@@ -1606,422 +909,228 @@
 
       <div class="marquee" aria-hidden="true">
         <div class="marquee-track">
-          <span>intensity</span><span>scale</span><span>rotation</span><span>softness</span><span>contrast</span><span>color</span><span>animation feel</span><span>window blinds</span><span>foliage breakup</span><span>sci-fi grid</span><span>film slash</span><span>abstract wash</span>
-          <span>intensity</span><span>scale</span><span>rotation</span><span>softness</span><span>contrast</span><span>color</span><span>animation feel</span><span>window blinds</span><span>foliage breakup</span><span>sci-fi grid</span><span>film slash</span><span>abstract wash</span>
+          <span>sidebar controls</span><span>thumbnail browsing</span><span>custom gobo import</span><span>V key pie menu</span><span>Cycles</span><span>EEVEE Gobo Mode</span><span>tracking lights</span><span>presets</span><span>volumetric beams</span><span>Orbit FX</span>
+          <span>sidebar controls</span><span>thumbnail browsing</span><span>custom gobo import</span><span>V key pie menu</span><span>Cycles</span><span>EEVEE Gobo Mode</span><span>tracking lights</span><span>presets</span><span>volumetric beams</span><span>Orbit FX</span>
         </div>
       </div>
 
-      <section class="intro-grid section" aria-labelledby="demo-heading">
-        <div>
-          <p class="section-label">Lighting lookdev, not node archaeology</p>
-          <h2 id="demo-heading">Shape light like a cinematographer.</h2>
-          <p class="support">Gobocaster 2 is presented here as a focused gobo-projection workflow for Blender artists who want window cuts, foliage breakup, abstract masks, and richer projected shadow language while staying in a directable lighting mindset.</p>
-        </div>
-        <aside class="note-panel">
-          <span class="mono">Conservative product note</span>
-          <p>Specific compatibility, exact feature lists, and purchase details should be verified on the live Superhive product page. This page uses general language based on the product name, creator, category, and available snippets.</p>
-        </aside>
-      </section>
-
-      <section class="section" id="demo" aria-label="Demo placeholder">
-        <div class="demo-frame" data-preset="blinds">
-          <span class="demo-orbit" aria-hidden="true"></span>
-          <span class="mask-preview" data-label="Window blinds active" aria-hidden="true"></span>
-          <div class="demo-copy">
-            <span class="mono">Preview media slot</span>
-            <h3>Replace with actual addon captures.</h3>
-            <p>This frame is designed as an intentional placeholder for a YouTube iframe, GIF, or screen recording. Until then, it carries the same moving blinds and breakup-shadow mood as the hero.</p>
-          </div>
-          <span class="play-target" aria-hidden="true"></span>
-        </div>
-      </section>
-
-      <section class="features section" aria-label="Gobocaster feature themes">
-        <article class="feature">
-          <span class="num">01</span>
-          <h3>Cast texture-driven light patterns.</h3>
-          <p>Use gobo-style masks to make a beam feel shaped, interrupted, and designed instead of flat.</p>
-          <div class="feature-tags" aria-hidden="true"><span class="feature-tag">mask</span><span class="feature-tag">beam</span><span class="feature-tag">cut</span></div>
-        </article>
-        <article class="feature">
-          <span class="num">02</span>
-          <h3>Build cinematic shadow language.</h3>
-          <p>Explore window, foliage, breakup, sci-fi, and abstract looks for scenes that need atmosphere quickly.</p>
-          <div class="feature-tags" aria-hidden="true"><span class="feature-tag">foliage</span><span class="feature-tag">breakup</span><span class="feature-tag">mood</span></div>
-        </article>
-        <article class="feature">
-          <span class="num">03</span>
-          <h3>Tune the projection feel.</h3>
-          <p>Dial intensity, scale, rotation, softness, contrast, color, and motion character to fit the shot.</p>
-          <div class="feature-tags" aria-hidden="true"><span class="feature-tag">scale</span><span class="feature-tag">softness</span><span class="feature-tag">color</span></div>
-        </article>
-        <article class="feature">
-          <span class="num">04</span>
-          <h3>Keep setups art-directable.</h3>
-          <p>Build reusable lighting moves that stay adjustable as your camera, mood, and scene evolve.</p>
-          <div class="feature-tags" aria-hidden="true"><span class="feature-tag">reuse</span><span class="feature-tag">adjust</span><span class="feature-tag">render</span></div>
-        </article>
-      </section>
-
-      <section class="gallery" id="patterns" aria-labelledby="patterns-heading">
-        <div class="section">
-          <div class="section-head">
-            <div>
-              <p class="section-label">Pattern gallery</p>
-              <h2 id="patterns-heading">Eight masks for instant mood.</h2>
-            </div>
-            <p class="support">These code-native studies show the kind of shadow direction the page is built around. They are placeholders for real Gobocaster 2 captures when available.</p>
-          </div>
-          <div class="patterns">
-            <button class="pattern-card is-active" type="button" data-preset="blinds" data-label="Window blinds active"><span class="pattern-title"><span>Window blinds</span><span>01</span></span></button>
-            <button class="pattern-card" type="button" data-preset="foliage" data-label="Foliage active"><span class="pattern-title"><span>Foliage</span><span>02</span></span></button>
-            <button class="pattern-card" type="button" data-preset="grid" data-label="Grid active"><span class="pattern-title"><span>Grid</span><span>03</span></span></button>
-            <button class="pattern-card" type="button" data-preset="slashes" data-label="Slashes active"><span class="pattern-title"><span>Slashes</span><span>04</span></span></button>
-            <button class="pattern-card" type="button" data-preset="caustic" data-label="Caustic wash active"><span class="pattern-title"><span>Caustic wash</span><span>05</span></span></button>
-            <button class="pattern-card" type="button" data-preset="vignette" data-label="Soft vignette active"><span class="pattern-title"><span>Soft vignette</span><span>06</span></span></button>
-            <button class="pattern-card" type="button" data-preset="film" data-label="Film breakup active"><span class="pattern-title"><span>Film breakup</span><span>07</span></span></button>
-            <button class="pattern-card" type="button" data-preset="custom" data-label="Custom mask active"><span class="pattern-title"><span>Custom mask</span><span>08</span></span></button>
-          </div>
-        </div>
-      </section>
-
-      <section class="workflow section" id="workflow" aria-labelledby="workflow-heading">
-        <p class="section-label">Workflow</p>
-        <h2 id="workflow-heading">Pick. Place. Tune. Render.</h2>
-        <div class="steps">
-          <article class="step">
-            <span class="mono">Step 01</span>
-            <h3>Pick a pattern.</h3>
-            <p>Start with a mask direction that matches the story: architectural, organic, graphic, or abstract.</p>
-          </article>
-          <article class="step">
-            <span class="mono">Step 02</span>
-            <h3>Place the light.</h3>
-            <p>Compose the projection as part of the shot, just like a motivated light or practical source.</p>
-          </article>
-          <article class="step">
-            <span class="mono">Step 03</span>
-            <h3>Tune the projection.</h3>
-            <p>Adjust scale, contrast, color, softness, and rotation until the shadow shape supports the mood.</p>
-          </article>
-          <article class="step">
-            <span class="mono">Step 04</span>
-            <h3>Render the mood.</h3>
-            <p>Turn a plain lighting pass into directed atmosphere for stills, animation, and look development.</p>
-          </article>
-        </div>
-      </section>
-
-      <section class="buy" id="before-buy" aria-labelledby="buy-heading">
-        <div class="buy-grid section">
+      <section class="block section">
+        <div class="split">
           <div>
-            <p class="section-label">Before you buy</p>
-            <h2 id="buy-heading">Verify the live Superhive details.</h2>
-            <p class="support">The design intentionally avoids exact claims about feature counts, engine support, and Blender version compatibility. Use this landing page as polished presentation material, then align final copy with the official product listing.</p>
+            <p class="label">Workflow</p>
+            <h2>Simple and intuitive workflow.</h2>
+            <p class="lede">
+              Simple and intuitive workflow with sidebar controls, thumbnail browsing, custom gobo import,
+              and quick access through the V key pie menu.
+            </p>
           </div>
-          <ul class="checklist">
-            <li>Confirm current compatibility and supported Blender workflows on Superhive.</li>
-            <li>Replace placeholder demo media with real Gobocaster 2 screen captures or renders.</li>
-            <li>Keep claims specific only after they are confirmed from the product source.</li>
-          </ul>
+          <aside class="panel">
+            <p class="mono">Perfect for</p>
+            <p>
+              Architectural visualization, product shots, visual effects, stage lighting,
+              motion graphics, and cinematic lighting.
+            </p>
+          </aside>
         </div>
       </section>
 
-      <section class="closing" aria-labelledby="closing-heading">
-        <div class="section">
-          <h2 id="closing-heading">Turn flat lighting into directed atmosphere.</h2>
-          <p>Gobocaster 2 gives the page a simple promise: more intentional light, richer shadows, and faster cinematic exploration inside Blender.</p>
+      <section class="block section" id="video">
+        <p class="label">Official Video</p>
+        <div class="video-frame">
+          <a class="video-ratio" href="https://www.youtube.com/watch?v=Rf87BefM-8Y" target="_blank" rel="noopener" aria-label="Watch the official GoboCaster 2 video on YouTube">
+            <img src="https://assets.superhivemarket.com/cache/6d4728970b1d67fbbedd75215b834ffb.png" alt="GoboCaster 2 official video preview">
+            <span class="play-badge">Watch on YouTube</span>
+          </a>
         </div>
+        <div class="video-actions">
+          <a class="video-link" href="https://www.youtube.com/watch?v=Rf87BefM-8Y" target="_blank" rel="noopener">Open on YouTube</a>
+        </div>
+      </section>
+
+      <section class="block section" id="features">
+        <p class="label">GoboCaster 2 Features</p>
+        <h2>Fast creative controls for patterned lighting.</h2>
+        <ul class="feature-list">
+          <li>Curated gobo texture library with visual thumbnail browsing</li>
+          <li>Custom image and video gobo import</li>
+          <li>Cycles gobo projection workflow</li>
+          <li>EEVEE Gobo Mode for high-contrast shadow-style projections</li>
+          <li>Add Tracking Light command for object-following spotlight setups</li>
+          <li>Distance control for tracked lights, keeping projection coverage stable</li>
+          <li>Gobo scale, rotation, offset, and invert controls</li>
+          <li>Light intensity, spot size, blend, and color controls</li>
+          <li>Quick light color presets for fast mood changes</li>
+          <li>My Presets system for saving and reusing favorite setups</li>
+          <li>Volumetric Beam control for visible cinematic light shafts</li>
+          <li>Orbit FX integration for interactive light placement</li>
+          <li>Quick pie menu with V key for fast access</li>
+          <li>Dual distribution with Extension and Legacy installer packages</li>
+        </ul>
+      </section>
+
+      <section class="block section">
+        <div class="feature-grid">
+          <article class="feature-card">
+            <span class="num">01</span>
+            <h3>Video Gobos</h3>
+            <p>
+              Video textures can be imported and used as animated gobos.
+              Select a video gobo like any other texture, then press Play on Blender's timeline to preview and render the animation.
+              GoboCaster 2 keeps playback under your control instead of forcing automatic playback.
+            </p>
+          </article>
+          <article class="feature-card">
+            <span class="num">02</span>
+            <h3>Cycles and EEVEE Workflow</h3>
+            <p>
+              Use Cycles for physically accurate gobo projection through spotlight nodes.
+              For EEVEE, GoboCaster 2 includes EEVEE Gobo Mode, designed for high-contrast shadow-style gobo effects.
+            </p>
+          </article>
+          <article class="feature-card">
+            <span class="num">03</span>
+            <h3>Tracking Light Workflow</h3>
+            <p>
+              Select an object and use Add Tracking Light to create a spotlight that automatically follows the target.
+              Move the object and the light keeps aiming at it. Use the Distance control to move the light closer or farther away while keeping the projection coverage stable.
+            </p>
+          </article>
+        </div>
+      </section>
+
+      <section class="block section" id="media">
+        <p class="label">Images</p>
+        <h2>GoboCaster 2 preview images.</h2>
+        <div class="media-grid">
+          <figure class="media-card">
+            <img src="https://assets.superhivemarket.com/cache/6d4728970b1d67fbbedd75215b834ffb.png" alt="GoboCaster 2 preview image">
+            <figcaption class="caption">GoboCaster 2</figcaption>
+          </figure>
+          <figure class="media-card">
+            <img src="https://assets.superhivemarket.com/cache/6915a5c5d85affa1189f0d7b21bd06e7.jpg" alt="GoboCaster 2 example render">
+            <figcaption class="caption">Preview</figcaption>
+          </figure>
+          <figure class="media-card">
+            <img src="https://assets.superhivemarket.com/cache/f7bf98c96811f0b5463d0e5ef633321b.jpg" alt="GoboCaster 2 example render">
+            <figcaption class="caption">Preview</figcaption>
+          </figure>
+        </div>
+      </section>
+
+      <section class="block section" id="support">
+        <div class="split">
+          <div>
+            <p class="label">Compatibility</p>
+            <h2>Cycles recommended. EEVEE supported through Gobo Mode.</h2>
+            <ul class="compat-list">
+              <li>Blender 4.2+ Extension package</li>
+              <li>Blender 4.0 / 4.1 Legacy installer package</li>
+              <li>Cycles recommended for full gobo projection</li>
+              <li>EEVEE supported through EEVEE Gobo Mode</li>
+              <li>Windows, macOS, and Linux</li>
+            </ul>
+          </div>
+          <aside class="panel">
+            <p class="mono">Support</p>
+            <p>
+              For support, updates, and community discussion, join the Discord server:
+            </p>
+            <p>
+              <a class="support-link" href="https://discord.gg/XD4Mj8rNQ">https://discord.gg/XD4Mj8rNQ</a>
+            </p>
+          </aside>
+        </div>
+      </section>
+
+      <section class="closing section">
+        <p class="label">GoboCaster 2</p>
+        <h2>Fast cinematic gobo projection tools to Blender.</h2>
+        <p>
+          Curated gobos, custom image and video imports, Cycles projection support,
+          EEVEE Gobo Mode, tracking lights, presets, and an intuitive sidebar workflow.
+        </p>
       </section>
     </main>
   </div>
 
-  <!-- Superhive iframe snippet:
-  <iframe src="https://USERNAME.github.io/REPO/" width="100%" height="2400" style="border:none;display:block;background:#000;" allowfullscreen=""></iframe>
-  -->
-
   <script>
-    const heroCanvas = document.getElementById("goboCanvas");
-    const heroCtx = heroCanvas.getContext("2d");
-    const pageCanvas = document.getElementById("pageCanvas");
-    const pageCtx = pageCanvas.getContext("2d");
-    const prefersReduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-    const pointer = { x: window.innerWidth * 0.58, y: window.innerHeight * 0.36, active: false };
-    const companions = [...document.querySelectorAll(".mask-chip")].map((el, index) => ({
-      el,
-      x: pointer.x,
-      y: pointer.y,
-      lag: 0.13 - index * 0.028,
-      spin: index * 34
-    }));
-    const trailPoints = [];
-    const particles = [];
-    let heroWidth = 0;
-    let heroHeight = 0;
-    let pageWidth = 0;
-    let pageHeight = 0;
-    let dpr = 1;
-    let raf = 0;
+    (() => {
+      const canvas = document.getElementById("light-canvas");
+      const ctx = canvas.getContext("2d");
+      const reduceMotion = matchMedia("(prefers-reduced-motion: reduce)").matches;
+      let width = 0;
+      let height = 0;
+      let dpr = 1;
+      const points = [];
 
-    function sizeCanvas(canvas, ctx, rect) {
-      const width = Math.max(1, Math.floor(rect.width));
-      const height = Math.max(1, Math.floor(rect.height));
-      canvas.width = Math.floor(width * dpr);
-      canvas.height = Math.floor(height * dpr);
-      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-      return { width, height };
-    }
-
-    function resizeCanvases() {
-      dpr = Math.min(window.devicePixelRatio || 1, 2);
-      const heroSize = sizeCanvas(heroCanvas, heroCtx, heroCanvas.getBoundingClientRect());
-      const pageSize = sizeCanvas(pageCanvas, pageCtx, { width: window.innerWidth, height: window.innerHeight });
-      heroWidth = heroSize.width;
-      heroHeight = heroSize.height;
-      pageWidth = pageSize.width;
-      pageHeight = pageSize.height;
-      particles.length = 0;
-      const count = Math.min(58, Math.max(24, Math.floor(pageWidth / 22)));
-      for (let i = 0; i < count; i++) {
-        particles.push({
-          x: Math.random() * pageWidth,
-          y: Math.random() * pageHeight,
-          r: 0.7 + Math.random() * 1.8,
-          vx: -0.12 + Math.random() * 0.24,
-          vy: -0.08 - Math.random() * 0.2,
-          hue: Math.random() > 0.72 ? "141, 230, 246" : "255, 211, 139"
-        });
+      function resize() {
+        dpr = Math.min(devicePixelRatio || 1, 1.5);
+        width = innerWidth;
+        height = innerHeight;
+        canvas.width = Math.round(width * dpr);
+        canvas.height = Math.round(height * dpr);
+        canvas.style.width = width + "px";
+        canvas.style.height = height + "px";
+        ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
       }
-    }
 
-    function drawBeam(t, offset, color, alpha, angleShift) {
-      const originX = heroWidth * (0.2 + offset * 0.015);
-      const originY = heroHeight * (0.45 + Math.sin(t * 0.0007 + offset) * 0.025);
-      const farX = heroWidth * 1.04;
-      const spread = heroHeight * (0.34 + 0.04 * Math.sin(t * 0.0005 + offset));
-      heroCtx.save();
-      heroCtx.globalCompositeOperation = "screen";
-      const grad = heroCtx.createLinearGradient(originX, originY, farX, originY);
-      grad.addColorStop(0, color.replace("ALPHA", alpha));
-      grad.addColorStop(0.5, color.replace("ALPHA", alpha * 0.38));
-      grad.addColorStop(1, color.replace("ALPHA", 0));
-      heroCtx.fillStyle = grad;
-      heroCtx.beginPath();
-      heroCtx.moveTo(originX, originY - 18);
-      heroCtx.lineTo(farX, originY - spread + angleShift);
-      heroCtx.lineTo(farX, originY + spread + angleShift);
-      heroCtx.closePath();
-      heroCtx.fill();
-      heroCtx.restore();
-    }
-
-    function drawHeroPatterns(t) {
-      heroCtx.save();
-      heroCtx.globalCompositeOperation = "multiply";
-      heroCtx.translate(heroWidth * 0.47, heroHeight * 0.48);
-      heroCtx.rotate(-0.16 + Math.sin(t * 0.00035) * 0.025);
-      heroCtx.translate(-heroWidth * 0.47, -heroHeight * 0.48);
-      heroCtx.fillStyle = "rgba(0,0,0,0.58)";
-      const stripeW = Math.max(18, heroWidth * 0.025);
-      const gap = stripeW * 1.9;
-      const drift = (t * 0.018) % gap;
-      for (let x = -heroWidth * 0.2 - drift; x < heroWidth * 1.2; x += gap) {
-        heroCtx.fillRect(x, heroHeight * 0.02, stripeW, heroHeight * 1.1);
+      function addPoint(x, y) {
+        points.push({ x, y, born: performance.now() });
+        while (points.length > 90) points.shift();
       }
-      heroCtx.restore();
 
-      heroCtx.save();
-      heroCtx.globalCompositeOperation = "destination-out";
-      const leafCount = heroWidth < 700 ? 18 : 34;
-      for (let i = 0; i < leafCount; i++) {
-        const x = heroWidth * (0.48 + ((i * 37) % 53) / 100) + Math.sin(t * 0.00045 + i) * 28;
-        const y = heroHeight * (0.16 + ((i * 19) % 70) / 100) + Math.cos(t * 0.00038 + i) * 18;
-        const r = 10 + ((i * 7) % 22);
-        const g = heroCtx.createRadialGradient(x, y, 0, x, y, r);
-        g.addColorStop(0, "rgba(0,0,0,0.42)");
-        g.addColorStop(1, "rgba(0,0,0,0)");
-        heroCtx.fillStyle = g;
-        heroCtx.beginPath();
-        heroCtx.ellipse(x, y, r * 1.2, r * 0.62, i * 0.75 + t * 0.0002, 0, Math.PI * 2);
-        heroCtx.fill();
-      }
-      heroCtx.restore();
-    }
+      addEventListener("pointermove", event => addPoint(event.clientX, event.clientY), { passive: true });
 
-    function drawLetterTrails(t) {
-      const heroRect = heroCanvas.getBoundingClientRect();
-      document.querySelectorAll(".logo-letter").forEach((letter, index) => {
-        const rect = letter.getBoundingClientRect();
-        trailPoints.push({
-          x: rect.left - heroRect.left + rect.width * 0.5 + Math.sin(t * 0.003 + index) * 5,
-          y: rect.top - heroRect.top + rect.height * 0.55 + Math.cos(t * 0.002 + index) * 4,
-          life: 1,
-          color: index % 3 === 0 ? "141, 230, 246" : "255, 211, 139"
-        });
-      });
-      while (trailPoints.length > 160) trailPoints.shift();
-      heroCtx.save();
-      heroCtx.globalCompositeOperation = "screen";
-      for (let i = trailPoints.length - 1; i >= 0; i--) {
-        const point = trailPoints[i];
-        point.life -= 0.026;
-        if (point.life <= 0) {
-          trailPoints.splice(i, 1);
-          continue;
+      function draw(now) {
+        ctx.clearRect(0, 0, width, height);
+        ctx.globalCompositeOperation = "lighter";
+
+        const beam = ctx.createLinearGradient(width * .05, height * .16, width * .95, height * .72);
+        beam.addColorStop(0, "rgba(71,240,255,.13)");
+        beam.addColorStop(.42, "rgba(32,92,255,.055)");
+        beam.addColorStop(1, "rgba(71,240,255,.08)");
+        ctx.fillStyle = beam;
+        ctx.beginPath();
+        ctx.moveTo(width * .04, height * .34);
+        ctx.lineTo(width, height * .12 + Math.sin(now * .0006) * 30);
+        ctx.lineTo(width, height * .82);
+        ctx.lineTo(width * .04, height * .5);
+        ctx.closePath();
+        ctx.fill();
+
+        for (let i = points.length - 1; i >= 0; i--) {
+          const point = points[i];
+          const age = now - point.born;
+          if (age > 900) {
+            points.splice(i, 1);
+            continue;
+          }
+          const alpha = 1 - age / 900;
+          ctx.beginPath();
+          ctx.arc(point.x, point.y, 4 + alpha * 18, 0, Math.PI * 2);
+          ctx.fillStyle = `rgba(71,240,255,${alpha * .09})`;
+          ctx.shadowBlur = 18;
+          ctx.shadowColor = "rgba(71,240,255,.6)";
+          ctx.fill();
         }
-        const radius = 3 + point.life * 14;
-        const grad = heroCtx.createRadialGradient(point.x, point.y, 0, point.x, point.y, radius);
-        grad.addColorStop(0, `rgba(${point.color}, ${0.18 * point.life})`);
-        grad.addColorStop(1, `rgba(${point.color}, 0)`);
-        heroCtx.fillStyle = grad;
-        heroCtx.beginPath();
-        heroCtx.arc(point.x, point.y, radius, 0, Math.PI * 2);
-        heroCtx.fill();
+
+        ctx.shadowBlur = 0;
+        ctx.globalCompositeOperation = "source-over";
+        if (!reduceMotion) requestAnimationFrame(draw);
       }
-      heroCtx.restore();
-    }
 
-    function drawHero(t) {
-      heroCtx.clearRect(0, 0, heroWidth, heroHeight);
-      const base = heroCtx.createLinearGradient(0, 0, heroWidth, heroHeight);
-      base.addColorStop(0, "#050606");
-      base.addColorStop(0.55, "#0b0c0b");
-      base.addColorStop(1, "#020303");
-      heroCtx.fillStyle = base;
-      heroCtx.fillRect(0, 0, heroWidth, heroHeight);
-
-      drawBeam(t, 0, "rgba(255, 196, 112, ALPHA)", 0.25, -heroHeight * 0.05);
-      drawBeam(t, 1, "rgba(141, 230, 246, ALPHA)", 0.12, heroHeight * 0.08);
-      drawBeam(t, 2, "rgba(255, 101, 74, ALPHA)", 0.07, heroHeight * 0.18);
-      drawHeroPatterns(t);
-      if (!prefersReduced) drawLetterTrails(t);
-
-      heroCtx.save();
-      heroCtx.globalCompositeOperation = "source-over";
-      const floor = heroCtx.createRadialGradient(heroWidth * 0.72, heroHeight * 0.72, 0, heroWidth * 0.72, heroHeight * 0.72, heroWidth * 0.55);
-      floor.addColorStop(0, "rgba(255, 214, 145, 0.19)");
-      floor.addColorStop(0.45, "rgba(255, 214, 145, 0.05)");
-      floor.addColorStop(1, "rgba(0,0,0,0)");
-      heroCtx.fillStyle = floor;
-      heroCtx.fillRect(0, 0, heroWidth, heroHeight);
-      heroCtx.fillStyle = "rgba(0,0,0,0.35)";
-      heroCtx.fillRect(0, heroHeight * 0.72, heroWidth, heroHeight * 0.28);
-      heroCtx.restore();
-    }
-
-    function drawPageParticles(t) {
-      pageCtx.clearRect(0, 0, pageWidth, pageHeight);
-      pageCtx.save();
-      pageCtx.globalCompositeOperation = "screen";
-      particles.forEach((p, index) => {
-        p.x += p.vx + Math.sin(t * 0.0003 + index) * 0.05;
-        p.y += p.vy;
-        if (p.y < -20) p.y = pageHeight + 20;
-        if (p.x < -20) p.x = pageWidth + 20;
-        if (p.x > pageWidth + 20) p.x = -20;
-        const distance = Math.hypot(pointer.x - p.x, pointer.y - p.y);
-        const pull = Math.max(0, 1 - distance / 180);
-        const r = p.r + pull * 3;
-        pageCtx.fillStyle = `rgba(${p.hue}, ${0.1 + pull * 0.22})`;
-        pageCtx.beginPath();
-        pageCtx.arc(p.x, p.y, r, 0, Math.PI * 2);
-        pageCtx.fill();
+      document.querySelectorAll(".panel, .feature-card, .media-card, .video-frame").forEach(card => {
+        card.addEventListener("pointermove", event => {
+          const rect = card.getBoundingClientRect();
+          card.style.setProperty("--mx", `${event.clientX - rect.left}px`);
+          card.style.setProperty("--my", `${event.clientY - rect.top}px`);
+        }, { passive: true });
       });
-      pageCtx.restore();
-    }
 
-    function animateCompanions(t) {
-      const wrap = document.querySelector(".hero-copy-wrap");
-      const rect = wrap.getBoundingClientRect();
-      companions.forEach((chip, index) => {
-        const targetX = pointer.x - rect.left + Math.sin(t * 0.002 + index) * (16 + index * 4);
-        const targetY = pointer.y - rect.top + Math.cos(t * 0.0024 + index) * (14 + index * 3);
-        chip.x += (targetX - chip.x) * chip.lag;
-        chip.y += (targetY - chip.y) * chip.lag;
-        chip.spin += 0.8 + index * 0.36;
-        chip.el.style.transform = `translate3d(${chip.x - 17}px, ${chip.y - 17}px, 0) rotate(${chip.spin}deg) scale(${1 - index * 0.08})`;
-      });
-    }
-
-    function tick(t) {
-      drawHero(t);
-      drawPageParticles(t);
-      animateCompanions(t);
-      raf = requestAnimationFrame(tick);
-    }
-
-    function boot() {
-      cancelAnimationFrame(raf);
-      resizeCanvases();
-      drawHero(0);
-      drawPageParticles(0);
-      if (!prefersReduced) raf = requestAnimationFrame(tick);
-    }
-
-    function pushElements(selector, event, radius = 110, strength = 18) {
-      document.querySelectorAll(selector).forEach((item) => {
-        const rect = item.getBoundingClientRect();
-        const cx = rect.left + rect.width / 2;
-        const cy = rect.top + rect.height / 2;
-        const dx = cx - event.clientX;
-        const dy = cy - event.clientY;
-        const dist = Math.max(1, Math.hypot(dx, dy));
-        const force = Math.max(0, 1 - dist / radius);
-        item.style.setProperty("--tx", `${(dx / dist) * force * strength}px`);
-        item.style.setProperty("--ty", `${(dy / dist) * force * strength}px`);
-        item.style.setProperty("--near", force.toFixed(2));
-        if (force > 0.25) item.style.borderColor = "rgba(141, 230, 246, 0.42)";
-      });
-    }
-
-    function resetPush(selector) {
-      document.querySelectorAll(selector).forEach((item) => {
-        item.style.setProperty("--tx", "0px");
-        item.style.setProperty("--ty", "0px");
-        item.style.setProperty("--near", "0");
-        item.style.borderColor = "";
-      });
-    }
-
-    window.addEventListener("resize", boot, { passive: true });
-    window.addEventListener("pointermove", (event) => {
-      pointer.x = event.clientX;
-      pointer.y = event.clientY;
-      pointer.active = true;
-      pushElements(".chip", event, 140, 20);
-    }, { passive: true });
-
-    document.querySelector(".chips").addEventListener("pointerleave", () => resetPush(".chip"));
-
-    document.querySelectorAll(".feature, .step, .demo-frame").forEach((card) => {
-      card.addEventListener("pointermove", (event) => {
-        const rect = card.getBoundingClientRect();
-        card.style.setProperty("--mx", `${event.clientX - rect.left}px`);
-        card.style.setProperty("--my", `${event.clientY - rect.top}px`);
-        if (card.classList.contains("feature")) pushElements(".feature-tag", event, 120, 16);
-      });
-      card.addEventListener("pointerleave", () => {
-        if (card.classList.contains("feature")) resetPush(".feature-tag");
-      });
-    });
-
-    const demoFrame = document.querySelector(".demo-frame");
-    const maskPreview = document.querySelector(".mask-preview");
-    document.querySelectorAll(".pattern-card").forEach((button) => {
-      button.addEventListener("click", () => {
-        const preset = button.dataset.preset;
-        document.querySelectorAll(".pattern-card").forEach((item) => item.classList.remove("is-active"));
-        button.classList.add("is-active", "is-animating");
-        window.setTimeout(() => button.classList.remove("is-animating"), 720);
-        demoFrame.dataset.preset = preset;
-        maskPreview.dataset.label = button.dataset.label;
-        demoFrame.classList.remove("is-blinds", "is-foliage", "is-grid", "is-slashes", "is-caustic", "is-vignette", "is-film", "is-custom");
-        void demoFrame.offsetWidth;
-        demoFrame.classList.add(`is-${preset}`);
-      });
-    });
-
-    boot();
+      addEventListener("resize", resize, { passive: true });
+      resize();
+      if (!reduceMotion) requestAnimationFrame(draw);
+    })();
   </script>
 </body>
 </html>
